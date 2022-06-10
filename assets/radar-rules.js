@@ -105,14 +105,6 @@
             { title: '关键词', docs: 'https://docs.rsshub.app/social-media.html#twitter', source: '/search', target: (params, url) => `/twitter/keyword/${new URL(url).searchParams.get('q')}` },
         ],
     },
-    'youtube.com': {
-        _name: 'YouTube',
-        www: [
-            { title: '用户', docs: 'https://docs.rsshub.app/social-media.html#youtube', source: '/user/:username', target: '/youtube/user/:username' },
-            { title: '频道', docs: 'https://docs.rsshub.app/social-media.html#youtube', source: '/channel/:id', target: '/youtube/channel/:id' },
-            { title: '播放列表', docs: 'https://docs.rsshub.app/social-media.html#youtube', source: '/playlist', target: (params, url) => `/youtube/playlist/${new URL(url).searchParams.get('list')}` },
-        ],
-    },
     'github.com': {
         _name: 'GitHub',
         '.': [
@@ -825,20 +817,6 @@
             { title: '用户投稿', docs: 'https://docs.rsshub.app/anime.html#acfun-yong-hu-tou-gao', source: '/u/:id', target: '/acfun/user/video/:id' },
         ],
     },
-    'behance.net': {
-        _name: 'Behance',
-        www: [
-            {
-                title: 'User',
-                docs: 'https://docs.rsshub.app/design.html#behance-user-works',
-                source: ['/:user'],
-                target: (params, url, document) => {
-                    const uid1 = document && document.querySelector('html').innerHTML.match(/([^/]+)\/insights/)[1];
-                    return `/behance/${uid1}`;
-                },
-            },
-        ],
-    },
     'jjmhw.cc': { _name: '漫小肆', www: [{ title: '漫画更新', docs: 'https://docs.rsshub.app/anime.html#man-xiao-si', source: '/book/:id', target: '/manxiaosi/book/:id' }] },
     'wenxuecity.com': {
         _name: '文学城',
@@ -1048,7 +1026,7 @@
         mob: [{ title: '分区', docs: 'https://docs.rsshub.app/game.html#lv-fa-shi-ying-di', source: '/fine/:tag', target: '/lfsyd/tag/:tag' }],
     },
     'macwk.com': { _name: 'MacWk', '.': [{ title: '应用更新', docs: 'https://docs.rsshub.app/program-update.html#macwk', source: '/soft/:name', target: '/macwk/soft/:name' }] },
-    'zyshow.net': { www: [{ title: '', docs: 'https://docs.rsshub.app/game.html#lv-fa-shi-ying-di', source: '/:name/', target: '/zyshow/:name' }] },
+    // 'zyshow.net': { www: [{ title: '', docs: 'https://docs.rsshub.app/game.html#lv-fa-shi-ying-di', source: '/:name/', target: '/zyshow/:name' }] },
     'foreverblog.cn': {
         _name: 'foreverblog',
         www: [

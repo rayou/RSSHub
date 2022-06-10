@@ -150,6 +150,97 @@ pageClass: routes
 
 输出 Transcript 从而提供比官方（podcast）更好的使用体验。
 
+## 7mmtv
+
+### 分类
+
+<Route author="nczitzk" example="/7mmtv/zh/censored_list/all" path="/7mmtv/:language?/:category?/:type?" :paramsDesc="['语言，见下表，默认为 `en` 即英语', '分类，见下表，默认为 `censored_list` 即 有碼AV', '空间，见下表，默认为全部']">
+
+**语言**
+
+| English | 日本語 | 한국의 | 中文 |
+| ------- | --- | --- | -- |
+| en      | ja  | ko  | zh |
+
+**分类**
+
+| 中字 AV        | 有碼 AV         | 素人 AV           | 無碼 AV           | 國產影片         | H 漫畫貼圖      |
+| ------------ | ------------- | --------------- | --------------- | ------------ | ----------- |
+| chinese_list | censored_list | amateurjav_list | uncensored_list | amateur_list | hcomic_list |
+
+| 中字 AV 隨機       | 有碼 AV 隨機        | 素人 AV 隨機          | 無碼 AV 隨機          | 國產影片隨機         | H 漫畫貼圖隨機      |
+| -------------- | --------------- | ----------------- | ----------------- | -------------- | ------------- |
+| chinese_random | censored_random | amateurjav_random | uncensored_random | amateur_random | hcomic_random |
+
+**空间**
+
+| 全部空間 | fembed (可下載) | streamsb (可下載) | doodstream | streamtape (可下載) | avgle | embedgram | videovard (可下載) |
+| ---- | ------------ | -------------- | ---------- | ---------------- | ----- | --------- | --------------- |
+| all  | 21           | 30             | 28         | 29               | 17    | 34        | 33              |
+
+</Route>
+
+### 制作商
+
+<Route author="nczitzk" example="/7mmtv/zh/amateurjav_makersr/1752" path="/7mmtv/:language?/:category?/:id?" :paramsDesc="['语言，见下表，默认为 `en` 即英语', '分类，见下表', '编号，见下表']">
+
+**语言**
+
+| English | 日本語 | 한국의 | 中文 |
+| ------- | --- | --- | -- |
+| en      | ja  | ko  | zh |
+
+**分类与编号**
+
+分类为 `amateurjav_makersr` 即 **素人 AV** 时，可选製作商编号有：
+
+| 製作商                       | 编号   |
+| ------------------------- | ---- |
+| シロウト TV (SIRO)            | 1752 |
+| ラグジュ TV (LUXU)            | 1586 |
+| ナンパ TV (200GANA)          | 1751 |
+| PRESTIGE PREMIUM(300MAAN) | 1318 |
+| S-CUTE                    | 1069 |
+| ARA                       | 1585 |
+
+分类为 `uncensored_makersr` 即 **無碼 AV** 时，可选製作商编号有：
+
+| 製作商                          | 编号  |
+| ---------------------------- | --- |
+| HEYZO                        | 17  |
+| 東京熱 (Tokyo Hot)              | 29  |
+| 一本道 (1pondo)                 | 32  |
+| カリビアンコム (Caribbeancom)       | 30  |
+| カリビアンコム PPV (Caribbeancompr) | 40  |
+| 天然むすめ (10musume)             | 31  |
+| パコパコママ (pacopacomama)        | 36  |
+| ガチん娘！(Gachinco)              | 35  |
+| エッチな 4610                    | 34  |
+| 人妻斬り 0930                    | 38  |
+| エッチな 0930                    | 39  |
+| トリプルエックス (XXX-AV)            | 126 |
+| FC2                          | 37  |
+
+</Route>
+
+## 91porn
+
+::: tip 提示
+
+91porn 有多个备用域名，路由默认使用永久域名 <https://91porn.com>。若该域名无法访问，可以通过在路由最后加上 `?domain=<域名>` 指定路由访问的域名。如指定备用域名为 <https://0122.91p30.com>，则在所有 91porn 路由最后加上 `?domain=0122.91p30.com` 即可，此时路由为 [`/91porn?domain=0122.91p30.com`](https://rsshub.app/91porn?domain=0122.91p30.com)
+
+:::
+
+### 今日排行
+
+<Route author="TonyRL" example="/91porn" path="/91porn/:lang?" :paramsDesc="['语言，见下表，默认 `en_US`']"  radar="1" rssbud="1" anticrawler="1">
+
+| English | 简体中文  | 繁體中文  |
+| ------- | ----- | ----- |
+| en_US   | cn_CN | zh_ZH |
+
+</Route>
+
 ## 99% Invisible
 
 ### Transcript
@@ -1535,8 +1626,16 @@ Tiny Tiny RSS 会给所有 iframe 元素添加 `sandbox="allow-scripts"` 属性�
 
 </Route>
 
-## 综艺秀（[www.zyshow.net）](http://www.zyshow.net）)
+## 综艺秀
 
 ### 综艺
 
-<Route author="pharaoh2012" example="/zyshow/chongchongchong" path="/zyshow/:name" :paramsDesc="['综艺 name，对应综艺的 URL 中找到']"  radar="1" rssbud="1"/>
+<Route author="pharaoh2012 nczitzk" example="/zyshow/chongchongchong" path="/zyshow/:region?/:id" :paramsDesc="['地区，见下表，默认为空，即台湾', '综艺 id，综艺详情对应页 URL 中找到']"  radar="1" rssbud="1">
+
+地区
+
+| 台湾 | 韩国 | 大陆 |
+| -- | -- | -- |
+|    | kr | dl |
+
+</Route>
