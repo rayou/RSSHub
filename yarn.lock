@@ -8623,10 +8623,10 @@ json-stringify-safe@^5.0.1, json-stringify-safe@~5.0.1:
   resolved "https://registry.yarnpkg.com/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz#1296a2d58fd45f19a0f6ce01d65701e2c735b6eb"
   integrity sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==
 
-json5@2.2.2, json5@^2.1.2, json5@^2.2.1:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.2.tgz#64471c5bdcc564c18f7c1d4df2e2297f2457c5ab"
-  integrity sha512-46Tk9JiOL2z7ytNQWFLpj99RZkVgeHf87yGQKsIkaPz1qSH9UczKH1rO7K3wgRselo0tYMUNfecYpm/p1vC7tQ==
+json5@2.2.3, json5@^2.1.2, json5@^2.2.1:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
+  integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
 
 json5@^0.5.0:
   version "0.5.1"
@@ -11582,10 +11582,10 @@ ramda@^0.26.1:
   resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.26.1.tgz#8d41351eb8111c55353617fc3bbffad8e4d35d06"
   integrity sha512-hLWjpy7EnsDBb0p+Z3B7rPi3GDeRG5ZtiI33kJhTt+ORCd38AbAIjB/9zRIUoeTbE/AVX5ZkU7m6bznsvrf8eQ==
 
-rand-user-agent@1.0.96:
-  version "1.0.96"
-  resolved "https://registry.yarnpkg.com/rand-user-agent/-/rand-user-agent-1.0.96.tgz#d572d68a5388954d433ef54c34255d092d052b28"
-  integrity sha512-6FjhHi234PrhDLZ2LWI+dHF+MPH9qu1uVYm5KsKfezur8h96XB1yVSB2diSl9UjwsBd30hBqN3/g6MiHHMcwbA==
+rand-user-agent@1.0.97:
+  version "1.0.97"
+  resolved "https://registry.yarnpkg.com/rand-user-agent/-/rand-user-agent-1.0.97.tgz#d57aca564c44c263f6078fa8fb30da26d4dd7c73"
+  integrity sha512-WZLjC2qyAtyOwd39KnDfZfpNKqPSlezlqnnvEgpTL6K5N+vXQR0kURx+xEc0NLQSJlTPPhSB/va8yBN+7h4meQ==
 
 randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5, randombytes@^2.1.0:
   version "2.1.0"
