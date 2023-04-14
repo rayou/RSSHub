@@ -1079,6 +1079,16 @@ pageClass: routes
 
 <Route author="Xiaotouming" example="/gdoujwc" path="/gdoujwc"/>
 
+## 广西民族大学
+
+### 研究生院招生公告
+
+<Route author="real-jiakai" example="/gxmzu/yjszsgg" path="/gxmzu/yjszsgg" radar="1" />
+
+### 人工智能学院通知公告
+
+<Route author="real-jiakai" example="/gxmzu/aitzgg" path="/gxmzu/aitzgg" radar="1" />
+
 ## 广州大学
 
 ## 广州大学研招网通知公告
@@ -2236,6 +2246,12 @@ jsjxy.hbut.edu.cn 证书链不全，自建 RSSHub 可设置环境变量 NODE_TLS
 
 </Route>
 
+## 南京中医药大学
+
+### 研究生院博士招生
+
+<Route author="real-jiakai" example="/njucm/grabszs" path="/njucm/grabszs" radar="1" />
+
 ## 南开大学
 
 ### 南开大学教务处
@@ -2253,6 +2269,12 @@ jsjxy.hbut.edu.cn 证书链不全，自建 RSSHub 可设置环境变量 NODE_TLS
 ### 通知公告
 
 <Route author="SunBK201" example="/qlu/notice" path="/qlu/notice" radar="1" />
+
+## 青岛大学
+
+### 教务处通知
+
+<Route author="abc1763613206" example="/qdu/jwc" path="/qdu/jwc" radar="1" />
 
 ## 清华大学
 
@@ -2557,6 +2579,18 @@ jsjxy.hbut.edu.cn 证书链不全，自建 RSSHub 可设置环境变量 NODE_TLS
 ### 体育与健康学院
 
 <Route author="NeverBehave" example="/slu/tyyjkxy/14754" path="/slu/tyyjkxy/:id" :paramsDesc="['类别ID']" />
+
+## 上海社会科学院
+
+### 研究生院
+
+<Route author="yanbot-team" example="/sass/gs/1793" path="/sass/gs/:type" :paramsDesc="['类别 ID，见下表，其他未列出的栏目参数可以从页面的 URL Path 中找到，例如：硕士统考招生的网址为 `https://gs.sass.org.cn/1793/list.htm`，则类别 ID 为`1793`']" radar="1" >
+
+| 硕士统考招生 | 硕士推免招生 |
+| ------------ | ------------ |
+| 1793         | sstmzs       |
+
+</Route>
 
 ## 深圳大学
 

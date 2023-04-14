@@ -1124,15 +1124,44 @@ IT・科学 tech_science
 
 </Route>
 
-### 新花城（广州市融媒体中心）
+## 广州市融媒体中心
 
-<Route author="TimWu007" example="/gzdaily/cmc/shouye" path="/gzdaily/cmc/:channel?" :paramsDesc="['频道名']">
+### 频道
 
-::: tip 提示
+<Route author="TimWu007" example="/gz-cmc/huacheng/shouye" path="/gz-cmc/:site/:channel?" :paramsDesc="['站点代码', '频道代码']">
 
-`频道名（channel）` 可在对应频道 url 后的参数中获取，如 `首页` 的栏目 url 为`https://huacheng.gz-cmc.com/channel/shouye/index.html`, `频道名` 即为 `shouye`。
+已知支持的站点及对应的`站点代码`如下：
 
-:::
+|                       站点 / 客户端名                      |     营运机构     |                      代码                      |
+| :--------------------------------------------------------: | :--------------: | :--------------------------------------------: |
+|          [新花城](https://www.gz-cmc.com "新花城")         |    广州日报社    |                   `huacheng`                   |
+| [广州白云](https://guangzhoubaiyun.gz-cmc.com/ "广州白云") | 白云区融媒体中心 |                `guangzhoubaiyun`               |
+|                          到黄埔去                          | 黄埔区融媒体中心 |                 `daohuangpuqu`                 |
+|                          掌上番禺                          | 番禺区融媒体中心 | `zhangshangfanyu` <br />（注：此处非笔误 = =） |
+|                           阅增城                           | 增城区融媒体中心 |                 `yuezengcheng`                 |
+
+如有上表未列出的站点，欢迎补充。
+
+`频道代码`获取方式：
+
+1.  在对应频道 url 后的参数中获取，如`首页`的栏目 url 为`https://huacheng.gz-cmc.com/channel/shouye/index.html`, `频道代码`即为`shouye`。
+2.  进入相应站点的客户端后抓包。
+
+黄埔、增城、番禺三区的站点无网页，需采用抓包的方式获取频道代码。现列出部分：
+
+|           频道名           |   代码   |
+| :------------------------: | :------: |
+|         黄埔 - 首页        |   `sy`   |
+| 黄埔 -《湾区时报》最新一期 |  `hpxsd` |
+|         黄埔 - 民生        |   `ms`   |
+|        黄埔 - 企明星       |   `qmx`  |
+|         增城 - 首页        | `shouye` |
+|         增城 - 身边        |   `sb`   |
+|         增城 - 本地        |  `zcfb`  |
+|         番禺 - 首页        | `shouye` |
+|         番禺 - 身边        |   `yw`   |
+|         番禺 - 生活        |   `sh`   |
+|         番禺 - 教育        |   `jy`   |
 
 </Route>
 
@@ -1629,6 +1658,30 @@ category 对应的关键词有
 
 </Route>
 
+## 南方网
+
+### 南方 +（按栏目 ID）
+
+<Route author="TimWu007" example="/southcn/nfapp/column/38" path="/southcn/nfapp/column/:column?" :paramsDesc="['栏目或南方号 ID']">
+
+::: tip 提示
+若此处输入的是栏目 ID（而非南方号 ID），则该接口会返回与输入栏目相关联栏目的文章。例如，输入栏目 ID `38`（广州），则返回的结果还会包含 ID 为 `3547`（市长报道集）的文章。
+:::
+
+1.  `pc.nfapp.southcn.com` 下的文章页面，可通过 url 查看，例：<http://pc.nfapp.southcn.com/13707/7491109.html> 的栏目 ID 为 `13707`。
+2.  `static.nfapp.southcn.com` 下的文章页面，可查看网页源代码，搜索 `columnid`。
+3.  <https://m.nfapp.southcn.com/column/all> 列出了部分栏目，`id` 即为栏目 ID。
+
+</Route>
+
+### 南方 +（按作者）
+
+<Route author="TimWu007" example="/southcn/nfapp/reporter/969927791" path="/southcn/nfapp/reporter/:reporter" :paramsDesc="['作者 UUID']">
+
+作者的 UUID 只可通过 `static.nfapp.southcn.com` 下的文章页面获取。点击文章下方的作者介绍，进入该作者的个人主页，即可从 url 中获取。
+
+</Route>
+
 ## 南方周末
 
 ### 新闻分类
@@ -2039,6 +2092,26 @@ category 对应的关键词有
 
 <Route author="rainrdx" example="/nikkei/asia" path="/nikkei/asia" radar="1"/>
 
+## 三立新聞網
+
+### 新聞
+
+<Route author="nczitzk" example="/setn" path="/setn/:category?" :paramsDesc="['分类，见下表，默认为即時']">
+
+| 即時 | 熱門 | 娛樂 | 政治 | 社會 |
+| ---- | ---- | ---- | ---- | ---- |
+
+| 國際 | 兩岸 | 生活 | 健康 | 旅遊 |
+| ---- | ---- | ---- | ---- | ---- |
+
+| 運動 | 地方 | 財經 | 富房網 | 名家 |
+| ---- | ---- | ---- | ------ | ---- |
+
+| 新奇 | 科技 | 汽車 | 寵物 | 女孩 | HOT 焦點 |
+| ---- | ---- | ---- | ---- | ---- | -------- |
+
+</Route>
+
 ## 厦门网
 
 ### 数字媒体
@@ -2216,28 +2289,6 @@ category 对应的关键词有
 `https://www.soundofhope.org/term/203` 对应 `/soundofhope/term/203`
 
 </Route>
-
-## 香港 01
-
-### 热门
-
-<Route author="hoilc Fatpandac nczitzk" example="/hk01/hot" path="/hk01/hot" radar="1" rssbud="1"/>
-
-### 栏目
-
-<Route author="hoilc Fatpandac nczitzk" example="/hk01/zone/11" path="/hk01/zone/:id" :paramsDesc="['栏目 id, 可在 URL 中找到']" radar="1" rssbud="1"/>
-
-### 子栏目
-
-<Route author="hoilc Fatpandac nczitzk" example="/hk01/channel/391" path="/hk01/channel/:id" :paramsDesc="['子栏目 id, 可在 URL 中找到']" radar="1" rssbud="1"/>
-
-### 专题
-
-<Route author="hoilc Fatpandac nczitzk" example="/hk01/issue/649" path="/hk01/issue/:id" :paramsDesc="['专题 id, 可在 URL 中找到']" radar="1" rssbud="1"/>
-
-### 标签
-
-<Route author="hoilc Fatpandac nczitzk" example="/hk01/tag/2787" path="/hk01/tag/:id" :paramsDesc="['标签 id, 可在 URL 中找到']" radar="1" rssbud="1"/>
 
 ## 香港電台
 
@@ -2570,6 +2621,12 @@ category 对应的关键词有
 > 如 URL `https://radio.cgtn.com/podcast/column/ezfm/More-to-Read/4` ，其 `category` 为 `ezfm` ，`id` 为 `4`，对应的订阅路由为 [`/podcast/ezfm/4`](https://rsshub.app/podcast/ezfm/4)
 
 </Route>
+
+## 中国科技网
+
+### 科技日报
+
+<Route author="lyqluis" example="/stdaily/digitalpaper" path="/stdaily/digitalpaper" />
 
 ## 中国日报
 

@@ -426,7 +426,7 @@ BT 之家的域名会变更，本路由以 <https://www.btbtt20.com> 为默认�
 
 ### 剧集订阅
 
-<Route author="savokiss" example="/domp4/detail/LBTANI22222I" path="/domp4/detail/:id" :paramsDesc="['从剧集详情页 URL 处获取，如：`https://www.domp4.cc/html/LBTANI22222I.html`，取 `.html` 前面部分']" radar="1" supportBT="1"/>
+<Route author="savokiss" example="/domp4/detail/LBTANI22222I" path="/domp4/detail/:id" :paramsDesc="['从剧集详情页 URL 处获取，如：`https://www.mp4kan.com/html/LBTANI22222I.html`，取 `.html` 前面部分']" radar="1" supportBT="1"/>
 
 :::tip
 由于大部分详情页是 `/html/xxx.html`，还有部分是 `/detail/123.html`，所以此处做了兼容，id 取 `xxx` 或者 `123` 都可以。
@@ -1176,6 +1176,46 @@ JavDB 有多个备用域名，本路由默认使用永久域名 <https://javdb.c
 | YYeTs 字幕组 | F.I.X 字幕侠 | 深影字幕组 | 擦枪字幕组 | 哒哒字幕组 | 迪幻字幕组 | 伊甸园字幕组 | H-SGDK 字幕组 | 蓝血字幕组 | GA 字幕组 | CC 标准电影字幕组 | NEW 字幕组 | Orange 字幕组 | 圣城家园 SCG 字幕组 | 纪录片之家字幕组 |
 | ------------ | ------------ | ---------- | ---------- | ---------- | ---------- | ------------ | ------------- | ---------- | --------- | ----------------- | ---------- | ------------- | ------------------- | ---------------- |
 | 14           | 28           | 2          | 118        | 132        | 20         | 1            | 18            | 71         | 11        | 75                | 130        | 66            | 19                  | 10               |
+
+</Route>
+
+## The Movie Database
+
+::: tip 提示
+路由中的语言参数可参考 <https://developers.themoviedb.org/3/getting-started/languages>。
+:::
+
+### 系列
+
+<Route author="x2cf" example="/themoviedb/collection/131292/zh" path="/themoviedb/collection/:id/:lang?" :paramsDesc="['系列 ID', '语言']" radar="1" rssbud="1" />
+
+### 热门
+
+<Route author="x2cf" example="/themoviedb/trending/tv/day/zh" path="/themoviedb/trending/:mediaType/:timeWindow/:lang?" :paramsDesc="['`movie` 或 `tv`', '`day` 或 `week`', '语言']" radar="1" rssbud="1" />
+
+### 剧集系列
+
+<Route author="x2cf" example="/themoviedb/tv/70593/seasons/zh" path="/themoviedb/tv/:id/seasons/:lang?" :paramsDesc="['剧集 ID', '语言']" radar="1" rssbud="1" />
+
+### 剧集章节
+
+<Route author="x2cf" example="/themoviedb/tv/70593/seasons/1/episodes/zh" path="/themoviedb/tv/:id/seasons/:seasonNumber/episodes/:lang?" :paramsDesc="['剧集 ID', '季号', '语言']" radar="1" rssbud="1" />
+
+### 片单
+
+<Route author="x2cf" example="/themoviedb/tv/top-rated/zh" path="/themoviedb/:mediaType/:sheet/:lang?" :paramsDesc="['`movie` 或 `tv`', '片单，见下表', '语言']" radar="1" rssbud="1">
+
+当 `mediaType` 为 `tv` 时，`sheet` 的值如下：
+
+| 今日播出     | 电视播出中 | 高分      |
+| ------------ | ---------- | --------- |
+| airing-today | on-the-air | top-rated |
+
+当 `mediaType` 为 `movie` 时，`sheet` 的值如下：
+
+| 正在上映    | 即将上映 | 高分      |
+| ----------- | -------- | --------- |
+| now-playing | upcoming | top-rated |
 
 </Route>
 
