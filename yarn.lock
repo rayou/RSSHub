@@ -1249,6 +1249,13 @@ agent-base@6, agent-base@^6.0.2:
   dependencies:
     debug "4"
 
+agent-base@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/agent-base/-/agent-base-7.0.0.tgz#3424dd96658fbbcc0b090e41aaca2deb9a89f9cf"
+  integrity sha512-awaqsf16R0tAUMxWiVikaBDKrbt0im7XdzPMh3I8TFC097G4ZowjGgLBfXt+tGPsE+1U1FyLBGuWMd/EPVblWg==
+  dependencies:
+    debug "^4.3.4"
+
 agentkeepalive@^4.2.1:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/agentkeepalive/-/agentkeepalive-4.3.0.tgz#bb999ff07412653c1803b3ced35e50729830a255"
@@ -6623,7 +6630,16 @@ snakecase-keys@^3.1.0:
     map-obj "^4.1.0"
     to-snake-case "^1.0.0"
 
-socks-proxy-agent@7.0.0, socks-proxy-agent@^7.0.0:
+socks-proxy-agent@8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-8.0.0.tgz#ee1f3e6fcf10a970f5b93ce206503d30daf6ec94"
+  integrity sha512-5tX6GGsT0q6nXjBd/fDtIXxdX9OOOaZjdo5jvtA8fODcP/4Fa2BH+8zfEgxdtyGN4fRVfZcxsSu8vkJILbrD5g==
+  dependencies:
+    agent-base "^7.0.0"
+    debug "^4.3.4"
+    socks "^2.7.1"
+
+socks-proxy-agent@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/socks-proxy-agent/-/socks-proxy-agent-7.0.0.tgz#dc069ecf34436621acb41e3efa66ca1b5fed15b6"
   integrity sha512-Fgl0YPZ902wEsAyiQ+idGd1A7rSFx/ayC1CQVMw5P+EQx2V0SgpGtf6OKFhVjPflPUl9YMmEOnmfjCdMUsygww==
@@ -6632,7 +6648,7 @@ socks-proxy-agent@7.0.0, socks-proxy-agent@^7.0.0:
     debug "^4.3.3"
     socks "^2.6.2"
 
-socks@^2.6.2:
+socks@^2.6.2, socks@^2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/socks/-/socks-2.7.1.tgz#d8e651247178fde79c0663043e07240196857d55"
   integrity sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==
