@@ -305,6 +305,16 @@ Language
 
 ## 重庆市人民政府 {#chong-qing-shi-ren-min-zheng-fu}
 
+### 国有资产监督管理委员会 {#chong-qing-shi-ren-min-zheng-fu-guo-you-zi-chan-jian-du-guan-li-wei-yuan-hui}
+
+<Route author="nczitzk" example="/gov/chongqing/gzw" path="/gov/chongqing/gzw/:category?" paramsDesc={['分类，见下表，默认为通知公告']} radar="1" rssbud="1">
+
+| 通知公告 | 国企资讯 | 国企简介 | 国企招聘 |
+| -------- | -------- | -------- | -------- |
+| tzgg_191 | gqdj     | gqjj     | gqzp     |
+
+</Route>
+
 ### 两江新区信息公开网 {#chong-qing-shi-ren-min-zheng-fu-liang-jiang-xin-qu-xin-xi-gong-kai-wang}
 
 #### 党务公开 {#chong-qing-shi-ren-min-zheng-fu-liang-jiang-xin-qu-xin-xi-gong-kai-wang-dang-wu-gong-kai}
@@ -1234,7 +1244,9 @@ Language
 
 ## 中国人大网 {#zhong-guo-ren-da-wang}
 
-<Route author="233yeee" example="/npc/c183" path="/npc/:caty" paramsDesc={['分类名，支持形如 `http://www.npc.gov.cn/npc/*/list.shtml` 的网站，传入 npc 之后的参数']}>
+### 通用 {#zhong-guo-ren-da-wang-tong-yong}
+
+<Route author="233yeee" example="/gov/npc/c183" path="/gov/npc/:caty" paramsDesc={['分类名，支持形如 `http://www.npc.gov.cn/npc/c2/*/` 的网站，传入 npc 之后的参数']}>
 
 | 立法 | 监督 | 代表 | 理论 | 权威发布 | 滚动新闻 |
 | ---- | ---- | ---- | ---- | -------- | -------- |

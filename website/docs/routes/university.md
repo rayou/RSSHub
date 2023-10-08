@@ -587,9 +587,9 @@ Note：[Source website](https://ece.umass.edu/seminar) may be empty when there's
 
 </Route>
 
-## 成都信息工程大学 {#cheng-dou-xin-xi-gong-cheng-da-xue}
+## 成都信息工程大学 {#cheng-du-xin-xi-gong-cheng-da-xue}
 
-### 成信新闻网 {#cheng-dou-xin-xi-gong-cheng-da-xue-cheng-xin-xin-wen-wang}
+### 成信新闻网 {#cheng-du-xin-xi-gong-cheng-da-xue-cheng-xin-xin-wen-wang}
 
 <Route author="kimika" example="/cuit/cxxww/1" path="/cuit/cxxww/:type?" paramsDesc={['默认为 `1`']}>
 
@@ -1315,6 +1315,10 @@ Note：[Source website](https://ece.umass.edu/seminar) may be empty when there's
 
 <Route author="real-jiakai" example="/gxmzu/aitzgg" path="/gxmzu/aitzgg" radar="1" />
 
+### 图书馆最新消息 {#guang-xi-min-zu-da-xue-tu-shu-guan-zui-xin-xiao-xi}
+
+<Route author="real-jiakai" example="/gxmzu/libzxxx" path="/gxmzu/libzxxx" radar="1" />
+
 ## 广州大学 {#guang-zhou-da-xue}
 
 ### 研究生院招生动态 {#guang-zhou-da-xue-yan-jiu-sheng-yuan-zhao-sheng-dong-tai}
@@ -1828,6 +1832,10 @@ jsjxy.hbut.edu.cn 证书链不全，自建 RSSHub 可设置环境变量 NODE_TLS
 ### 华农研讯 {#hua-nan-nong-ye-da-xue-hua-nong-yan-xun}
 
 <Route author="shengmaosu" example="/scau/yzb" path="/scau/yzb" radar="1"/>
+
+### 研究生院通知 {#hua-nan-nong-ye-da-xue-yan-jiu-sheng-yuan-tong-zhi}
+
+<Route author="Chunssu" example="/scau/yjsy" path="/scau/yjsy" radar="1"/>
 
 ## 华南师范大学 {#hua-nan-shi-fan-da-xue}
 
