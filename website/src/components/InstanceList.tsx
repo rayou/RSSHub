@@ -24,6 +24,16 @@ export default function InstanceList(): JSX.Element {
     location: '🇺🇸',
     maintainer: 'Zeabur',
     maintainerUrl: 'https://zeabur.com',
+  }, {
+    url: 'https://rss.fatpandac.com',
+    location: '🇺🇸',
+    maintainer: 'Fatpandac',
+    maintainerUrl: 'https://fatpandac.com',
+  }, {
+    url: 'https://rsshub.pseudoyu.com',
+    location: '🇺🇸',
+    maintainer: 'pseudoyu',
+    maintainerUrl: 'https://www.pseudoyu.com',
   }]
 
   return (
