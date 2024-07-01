@@ -1,9 +1,9 @@
 import { Route } from '@/types';
 import cache from '@/utils/cache';
-import got from '@/utils/got';
 import parser from '@/utils/rss-parser';
 import { load } from 'cheerio';
 import utils from './utils';
+import ofetch from '@/utils/ofetch';
 
 export const route: Route = {
     path: '/:site?/:channel?',
@@ -61,25 +61,35 @@ async function handler(ctx) {
     const items = await Promise.all(
         feed.items.map((item) =>
             cache.tryGet(item.link, async () => {
-                const response = await got({
-                    method: 'get',
-                    url: item.link,
-                });
-
-                const $ = load(response.data);
-
-                const description = response.request.options.url.pathname.startsWith('/news/av') ? item.content : utils.ProcessFeed($);
-
-                let section = 'sport';
-                const urlSplit = item.link.split('/');
-                const sectionSplit = urlSplit.at(-1).split('-');
-                if (sectionSplit.length > 1) {
-                    section = sectionSplit[0];
+                const linkURL = new URL(item.link);
+                if (linkURL.hostname === 'www.bbc.com') {
+                    linkURL.hostname = 'www.bbc.co.uk';
                 }
-                section = section[0].toUpperCase() + section.slice(1);
+
+                const response = await ofetch(linkURL.href);
+
+                const $ = load(response);
+
+                const path = linkURL.pathname;
+
+                let description;
+
+                switch (true) {
+                    case path.startsWith('/sport'):
+                        description = item.content;
+                        break;
+                    case path.startsWith('/sounds/play'):
+                        description = item.content;
+                        break;
+                    case path.startsWith('/news/live'):
+                        description = item.content;
+                        break;
+                    default:
+                        description = utils.ProcessFeed($);
+                }
 
                 return {
-                    title: `[${section}] ${item.title}`,
+                    title: item.title,
                     description,
                     pubDate: item.pubDate,
                     link: item.link,
