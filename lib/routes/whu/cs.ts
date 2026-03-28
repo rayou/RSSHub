@@ -1,9 +1,10 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
-import { load } from 'cheerio';
 
 const baseUrl = 'https://cs.whu.edu.cn';
 
@@ -24,8 +25,8 @@ export const route: Route = {
     maintainers: ['ttyfly'],
     handler,
     description: `| 公告类型 | 学院新闻 | 学术交流 | 通知公告 | 科研进展 |
-  | -------- | -------- | -------- | -------- | -------- |
-  | 参数     | 0        | 1        | 2        | 3        |`,
+| -------- | -------- | -------- | -------- | -------- |
+| 参数     | 0        | 1        | 2        | 3        |`,
 };
 
 async function handler(ctx) {
@@ -71,10 +72,16 @@ async function handler(ctx) {
             };
         });
 
-    const items = await Promise.all(
+    let items = await Promise.all(
         list.map((item) =>
             cache.tryGet(item.link, async () => {
-                const response = await got(item.link);
+                let response;
+                try {
+                    // 实测发现有些链接无法访问
+                    response = await got(item.link);
+                } catch {
+                    return null;
+                }
                 const $ = load(response.data);
 
                 if ($('.prompt').length) {
@@ -87,7 +94,8 @@ async function handler(ctx) {
                 content.find('img').each((_, e) => {
                     e = $(e);
                     if (e.attr('orisrc')) {
-                        e.attr('src', new URL(e.attr('orisrc'), response.url).href);
+                        const newUrl = new URL(e.attr('orisrc'), 'https://cs.whu.edu.cn');
+                        e.attr('src', newUrl.href);
                         e.removeAttr('orisrc');
                         e.removeAttr('vurl');
                     }
@@ -100,6 +108,7 @@ async function handler(ctx) {
             })
         )
     );
+    items = items.filter((item) => item !== null);
 
     return {
         title: $('title').first().text(),

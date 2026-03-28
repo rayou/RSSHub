@@ -1,10 +1,12 @@
-import { Route } from '@/types';
-import cache from '@/utils/cache';
+import pMap from 'p-map';
+
 import { config } from '@/config';
-import utils from './utils';
-import { parseDate } from '@/utils/parse-date';
-import asyncPool from 'tiny-async-pool';
 import ConfigNotFoundError from '@/errors/types/config-not-found';
+import type { Route } from '@/types';
+import cache from '@/utils/cache';
+import { parseDate } from '@/utils/parse-date';
+
+import utils from './utils';
 
 export const route: Route = {
     path: '/subscriptions/:embed?',
@@ -51,18 +53,10 @@ async function handler(ctx) {
 
     const channelIds = (await utils.getSubscriptions('snippet', cache)).data.items.map((item) => item.snippet.resourceId.channelId);
 
-    const playlistIds = [];
-    for await (const playlistId of asyncPool(30, channelIds, async (channelId) => (await utils.getChannelWithId(channelId, 'contentDetails', cache)).data.items[0].contentDetails.relatedPlaylists.uploads)) {
-        playlistIds.push(playlistId);
-    }
+    const playlistIds = await pMap(channelIds, async (channelId) => (await utils.getChannelWithId(channelId, 'contentDetails', cache)).data.items[0].contentDetails.relatedPlaylists.uploads, { concurrency: 30 });
 
-    let items = [];
-    for await (const item of asyncPool(30, playlistIds, async (playlistId) => (await utils.getPlaylistItems(playlistId, 'snippet', cache))?.data.items)) {
-        items.push(item);
-    }
+    let items = await pMap(playlistIds, async (playlistId) => (await utils.getPlaylistItems(playlistId, 'snippet', cache))?.data.items, { concurrency: 30 });
 
-    // https://measurethat.net/Benchmarks/Show/7223
-    // concat > reduce + concat >>> flat
     items = items.flat();
 
     items = items
@@ -77,12 +71,14 @@ async function handler(ctx) {
                 pubDate: parseDate(snippet.publishedAt),
                 link: `https://www.youtube.com/watch?v=${videoId}`,
                 author: snippet.videoOwnerChannelTitle,
+                image: img.url,
             };
         });
 
     const ret = {
         title: 'Subscriptions - YouTube',
         description: 'YouTube Subscriptions',
+        link: 'www.youtube.com/feed/subscriptions',
         item: items,
     };
 

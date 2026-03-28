@@ -1,6 +1,8 @@
-import { parseDate } from '@/utils/parse-date';
+import os from 'node:os';
+
 import title from 'title';
-import os from 'os';
+
+import { parseDate } from '@/utils/parse-date';
 
 // convert a string into title case
 const toTitleCase = (str: string) => title(str);
@@ -39,7 +41,8 @@ const getLocalhostAddress = () => {
         .filter((iface) => iface?.family === 'IPv4' && !iface.internal)
         .map((iface) => iface?.address)
         .filter(Boolean);
+    address.push('[::]');
     return address;
 };
 
-export { toTitleCase, collapseWhitespace, convertDateToISO8601, getSubPath, getLocalhostAddress };
+export { collapseWhitespace, convertDateToISO8601, getLocalhostAddress, getSubPath, toTitleCase };

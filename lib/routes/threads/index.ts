@@ -1,50 +1,49 @@
-import { Route } from '@/types';
-import got from '@/utils/got';
+import { JSDOM } from 'jsdom';
+import { JSONPath } from 'jsonpath-plus';
+
+import type { Route } from '@/types';
+import { ViewType } from '@/types';
+import ofetch from '@/utils/ofetch';
 import { parseDate } from '@/utils/parse-date';
-import { PROFILE_QUERY, REPLIES_QUERY, THREADS_QUERY, apiUrl, threadUrl, profileUrl, extractTokens, makeHeader, buildContent } from './utils';
+
+import { buildContent, extractTokens, getUserId, profileUrl, threadUrl } from './utils';
 
 export const route: Route = {
     path: '/:user/:routeParams?',
     categories: ['social-media'],
+    view: ViewType.SocialMedia,
     example: '/threads/zuck',
-    parameters: { user: 'Username', routeParams: 'Extra parameters, see the table below' },
-    features: {
-        requireConfig: false,
-        requirePuppeteer: false,
-        antiCrawler: false,
-        supportBT: false,
-        supportPodcast: false,
-        supportScihub: false,
+    parameters: {
+        user: 'Username',
+        routeParams: {
+            description: `Extra parameters, see the table below
+Specify options (in the format of query string) in parameter \`routeParams\` to control some extra features for threads
+
+| Key                            | Description                                                                                                                  | Accepts                | Defaults to |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----------- |
+| \`showAuthorInTitle\`            | Show author name in title                                                                                                    | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
+| \`showAuthorInDesc\`             | Show author name in description (RSS body)                                                                                   | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
+| \`showQuotedAuthorAvatarInDesc\` | Show avatar of quoted author in description (RSS body) (Not recommended if your RSS reader extracts images from description) | \`0\`/\`1\`/\`true\`/\`false\` | \`false\`     |
+| \`showAuthorAvatarInDesc\`       | Show avatar of author in description (RSS body) (Not recommended if your RSS reader extracts images from description)        | \`0\`/\`1\`/\`true\`/\`false\` | \`falseP\`    |
+| \`showEmojiForQuotesAndReply\`   | Use "🔁" instead of "QT", "↩️" instead of "Re"                                                                               | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
+| \`showQuotedInTitle\`            | Show quoted tweet in title                                                                                                   | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
+| \`replies\`                      | Show replies                                                                                                                 | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |`,
+        },
     },
     name: 'User timeline',
-    maintainers: ['ninboy'],
+    maintainers: ['ninboy', 'pseudoyu'],
     handler,
-    description: `Specify options (in the format of query string) in parameter \`routeParams\` to control some extra features for threads
-
-  | Key                            | Description                                                                                                                  | Accepts                | Defaults to |
-  | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----------- |
-  | \`showAuthorInTitle\`            | Show author name in title                                                                                                    | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
-  | \`showAuthorInDesc\`             | Show author name in description (RSS body)                                                                                   | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
-  | \`showQuotedAuthorAvatarInDesc\` | Show avatar of quoted author in description (RSS body) (Not recommended if your RSS reader extracts images from description) | \`0\`/\`1\`/\`true\`/\`false\` | \`false\`     |
-  | \`showAuthorAvatarInDesc\`       | Show avatar of author in description (RSS body) (Not recommended if your RSS reader extracts images from description)        | \`0\`/\`1\`/\`true\`/\`false\` | \`falseP\`    |
-  | \`showEmojiForQuotesAndReply\`   | Use "🔁" instead of "QT", "↩️" instead of "Re"                                                                               | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
-  | \`showQuotedInTitle\`            | Show quoted tweet in title                                                                                                   | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
-  | \`replies\`                      | Show replies                                                                                                                 | \`0\`/\`1\`/\`true\`/\`false\` | \`true\`      |
-
-  Specify different option values than default values to improve readability. The URL
-
-  \`\`\`
-  https://rsshub.app/threads/zuck/showAuthorInTitle=1&showAuthorInDesc=1&showQuotedAuthorAvatarInDesc=1&showAuthorAvatarInDesc=1&showEmojiForQuotesAndReply=1&showQuotedInTitle=1
-  \`\`\``,
 };
 
 async function handler(ctx) {
     const { user, routeParams } = ctx.req.param();
-    const { lsd, userId } = await extractTokens(user, ctx);
+    const { lsd } = await extractTokens(user);
+    const userId = await getUserId(user);
 
     const params = new URLSearchParams(routeParams);
-    const json = {
+    const debugJson: any = {
         params: routeParams,
+        lsd,
     };
 
     const options = {
@@ -57,56 +56,83 @@ async function handler(ctx) {
         replies: params.get('replies') ?? false,
     };
 
-    const { data: profileResponse } = await got.post(apiUrl, {
-        headers: makeHeader(user, lsd),
-        form: {
-            lsd,
-            variables: JSON.stringify({ userID: userId }),
-            doc_id: PROFILE_QUERY,
+    const response = await ofetch(profileUrl(user), {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+            Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Encoding': 'gzip, br',
+            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Upgrade-Insecure-Requests': '1',
         },
     });
 
-    const { data: threadsResponse, request: threadsRequest } = await got.post(apiUrl, {
-        headers: makeHeader(user, lsd),
-        form: {
-            lsd,
-            variables: JSON.stringify({ userID: userId }),
-            doc_id: options.replies ? REPLIES_QUERY : THREADS_QUERY,
-        },
-    });
+    const dom = new JSDOM(response);
 
-    json.profileData = profileResponse;
-    json.request = {
-        headers: threadsRequest.options.headers,
-        body: threadsRequest.options.body,
-    };
+    let threadsData: ThreadItem[] | null = null;
+    for (const el of dom.window.document.querySelectorAll('script[data-sjs]')) {
+        try {
+            const data = JSONPath({
+                path: '$..thread_items[0]',
+                json: JSON.parse(el.textContent || ''),
+            });
 
-    const userData = profileResponse?.data?.userData?.user || {};
-    const threads = threadsResponse?.data?.mediaData?.threads || [];
+            if (data?.length > 0) {
+                threadsData = data as ThreadItem[];
+                break;
+            }
+        } catch {
+            // Skip invalid JSON
+        }
+    }
 
-    const items = threads.flatMap((thread) =>
-        thread.thread_items
-            .filter((item) => user === item.post.user?.username)
-            .map((item) => {
-                const { title, description } = buildContent(item, options);
-                return {
-                    author: user,
-                    title,
-                    description,
-                    pubDate: parseDate(item.post.taken_at, 'X'),
-                    link: threadUrl(item.post.code),
-                };
-            })
-    );
+    if (!threadsData) {
+        throw new Error('Failed to fetch thread data');
+    }
 
-    json.items = items;
-    ctx.set('json', json);
+    debugJson.profileId = userId;
+    debugJson.response = { response: threadsData };
+
+    const userData: ThreadUser = threadsData[0]?.post?.user || { username: user, profile_pic_url: '' };
+
+    const items = threadsData
+        .filter((item) => user === item.post.user?.username)
+        .map((item) => ({
+            author: user,
+            title: buildContent(item, options).title,
+            description: buildContent(item, options).description,
+            pubDate: parseDate(item.post.taken_at, 'X'),
+            link: threadUrl(item.post.code),
+        }));
+
+    debugJson.items = items;
+    ctx.set('json', debugJson);
 
     return {
         title: `${user} (@${user}) on Threads`,
         link: profileUrl(user),
-        image: userData.hd_profile_pic_versions?.sort((a, b) => b.width - a.width)[0].url ?? userData.profile_pic_url,
-        description: userData.biography,
+        image: userData?.profile_pic_url,
         item: items,
+    };
+}
+
+interface ThreadUser {
+    username: string;
+    profile_pic_url: string;
+}
+
+interface ThreadItem {
+    post: {
+        user?: ThreadUser;
+        taken_at: number;
+        code: string;
+        caption?: {
+            text: string;
+        };
     };
 }

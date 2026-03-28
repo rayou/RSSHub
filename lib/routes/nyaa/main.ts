@@ -1,6 +1,7 @@
-import { Route } from '@/types';
-import { config } from '@/config';
 import Parser from 'rss-parser';
+
+import { config } from '@/config';
+import type { Route } from '@/types';
 
 export const route: Route = {
     path: ['/search/:query?', '/user/:username?', '/user/:username/search/:query?', '/sukebei/search/:query?', '/sukebei/user/:username?', '/sukebei/user/:username/search/:query?'],
@@ -16,7 +17,7 @@ export const route: Route = {
         supportScihub: false,
     },
     name: 'Search Result',
-    maintainers: ['Lava-Swimmer', 'noname1776'],
+    maintainers: ['Lava-Swimmer', 'noname1776', 'camera-2018'],
     handler,
 };
 
@@ -32,7 +33,7 @@ async function handler(ctx) {
 
     const { query, username } = ctx.req.param();
 
-    const rootURL = ctx.routerPath.split('/')[1] === 'sukebei' ? 'https://sukebei.nyaa.si' : 'https://nyaa.si';
+    const rootURL = ctx.req.path.split('/')[2] === 'sukebei' ? 'https://sukebei.nyaa.si' : 'https://nyaa.si';
 
     let currentRSSURL = `${rootURL}/?page=rss`;
     let currentLink = `${rootURL}/`;
@@ -48,7 +49,6 @@ async function handler(ctx) {
     const feed = await parser.parseURL(currentRSSURL);
 
     feed.items.map((item) => {
-        item.link = item.guid;
         item.description = item.content;
         item.enclosure_url = `magnet:?xt=urn:btih:${item.infoHash}`;
         item.enclosure_type = 'application/x-bittorrent';

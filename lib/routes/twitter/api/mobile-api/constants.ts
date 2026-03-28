@@ -1,4 +1,4 @@
-const baseUrl = 'https://api.twitter.com';
+const baseUrl = 'https://api.x.com';
 
 const consumerKey = '3nVuSoBZnx6U4vzUxf5w';
 const consumerSecret = 'Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys';
@@ -83,4 +83,4 @@ const bearerToken = 'Bearer AAAAAAAAAAAAAAAAAAAAAFXzAwAAAAAAMHCxpeSDG1gLNLghVe8d
 
 const guestActivateUrl = baseUrl + '/1.1/guest/activate.json';
 
-export { baseUrl, consumerKey, consumerSecret, gqlMap, gqlFeatures, timelineParams, bearerToken, guestActivateUrl };
+export { baseUrl, bearerToken, consumerKey, consumerSecret, gqlFeatures, gqlMap, guestActivateUrl, timelineParams };

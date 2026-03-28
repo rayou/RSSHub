@@ -1,6 +1,7 @@
-import { Route } from '@/types';
+import type { Context } from 'hono';
+
+import type { Route } from '@/types';
 import got from '@/utils/got';
-import { Context } from 'hono';
 
 export const route: Route = {
     path: '/version/:versionType?/:linkType?',
@@ -63,13 +64,13 @@ const linkFormatter: any = {
     enwiki: (item: VersionInManifest) => {
         let id = item.id;
         if (item.type === 'old_beta' && id.startsWith('b')) {
-            id = `Beta ${id.substring(1)}`;
+            id = `Beta ${id.slice(1)}`;
         }
         if (item.type === 'old_alpha') {
             if (id.startsWith('a')) {
-                id = `Alpha ${id.substring(1)}`;
+                id = `Alpha ${id.slice(1)}`;
             } else if (id.startsWith('c')) {
-                id = `Classic ${id.substring(1)}`;
+                id = `Classic ${id.slice(1)}`;
             } else if (id.startsWith('inf-')) {
                 id = `Infdev`;
             } else if (id.startsWith('rd-')) {
@@ -84,13 +85,13 @@ const linkFormatter: any = {
             id = `Java版${id}`;
         }
         if (item.type === 'old_beta' && id.startsWith('b')) {
-            id = `Java版Beta ${id.substring(1)}`;
+            id = `Java版Beta ${id.slice(1)}`;
         }
         if (item.type === 'old_alpha') {
             if (id.startsWith('a')) {
-                id = `Java版Alpha ${id.substring(1)}`;
+                id = `Java版Alpha ${id.slice(1)}`;
             } else if (id.startsWith('c')) {
-                id = `Java版Classic ${id.substring(1)}`;
+                id = `Java版Classic ${id.slice(1)}`;
             } else if (id.startsWith('inf-')) {
                 id = `Java版Infdev`;
             } else if (id.startsWith('rd-')) {
@@ -120,7 +121,7 @@ async function handler(ctx?: Context) {
         data = data.filter((item) => item.type === versionType);
     }
 
-    const title = `Minecraft Java版${versionType === 'all' ? '' : typeName[versionType] ?? versionType}游戏更新`;
+    const title = `Minecraft Java版${versionType === 'all' ? '' : (typeName[versionType] ?? versionType)}游戏更新`;
 
     return {
         title,

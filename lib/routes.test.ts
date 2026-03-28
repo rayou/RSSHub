@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import app from '@/app';
 import Parser from 'rss-parser';
-const parser = new Parser();
+import { describe, expect, it } from 'vitest';
+
+import app from '@/app';
 import { config } from '@/config';
+
+const parser = new Parser();
 
 process.env.ALLOW_USER_SUPPLY_UNSAFE_DOMAIN = 'true';
 
@@ -49,7 +51,7 @@ async function checkRSS(response) {
     checkDate(parsed.lastBuildDate);
 
     // check items
-    const guids: (string | undefined)[] = [];
+    const guids: Array<string | undefined> = [];
     for (const item of parsed.items) {
         expect(item).toEqual(expect.any(Object));
         expect(item.title).toEqual(expect.any(String));
@@ -69,10 +71,16 @@ async function checkRSS(response) {
 
 describe('routes', () => {
     for (const route in routes) {
-        it.concurrent(route, async () => {
-            const response = await app.request(routes[route]);
-            expect(response.status).toBe(200);
-            await checkRSS(response);
-        });
+        it.concurrent(
+            route,
+            {
+                timeout: 60000,
+            },
+            async () => {
+                const response = await app.request(routes[route]);
+                expect(response.status).toBe(200);
+                await checkRSS(response);
+            }
+        );
     }
 });

@@ -1,7 +1,8 @@
-import { parseDate } from '@/utils/parse-date';
+import * as cheerio from 'cheerio';
+
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import * as cheerio from 'cheerio';
+import { parseDate } from '@/utils/parse-date';
 
 export const parseList = (result) =>
     result.map((item) => ({
@@ -23,7 +24,7 @@ export const parseItem = (item) =>
         $('#meta_content').remove();
         $('div').each((_, elem) => {
             const $elem = $(elem);
-            $elem.attr('style', $elem.attr('style')?.replaceAll(/display:none;|visibility: hidden;/g, ''));
+            $elem.attr('style', $elem.attr('style')?.replaceAll(/(?:display:\s*none|visibility:\s*hidden|opacity:\s*0);?/g, ''));
         });
         $('img').each((_, elem) => {
             const $elem = $(elem);

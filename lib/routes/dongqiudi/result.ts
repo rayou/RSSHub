@@ -1,6 +1,7 @@
-import { Route } from '@/types';
-import got from '@/utils/got';
 import { JSDOM } from 'jsdom';
+
+import type { Route } from '@/types';
+import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
@@ -42,6 +43,6 @@ async function handler(ctx) {
     return {
         title: `${teamName} 比赛结果`,
         link,
-        item: out.slice(-10, out.length),
+        item: out.slice(-10),
     };
 }

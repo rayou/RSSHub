@@ -1,12 +1,13 @@
-import { Route } from '@/types';
+import { config } from '@/config';
+import ConfigNotFoundError from '@/errors/types/config-not-found';
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
-import { getToken } from './token';
+import { parseDate } from '@/utils/parse-date';
+
 import getBookmarks from './api/get-bookmarks';
 import getUserDetail from './api/get-user-detail';
-import { config } from '@/config';
+import { getToken } from './token';
 import pixivUtils from './utils';
-import { parseDate } from '@/utils/parse-date';
-import ConfigNotFoundError from '@/errors/types/config-not-found';
 
 export const route: Route = {
     path: '/user/bookmarks/:id',
@@ -20,10 +21,11 @@ export const route: Route = {
         supportBT: false,
         supportPodcast: false,
         supportScihub: false,
+        nsfw: true,
     },
     radar: [
         {
-            source: ['www.pixiv.net/users/:id/bookmarks/artworks'],
+            source: ['www.pixiv.net/users/:id/bookmarks/artworks', 'www.pixiv.net/en/users/:id/bookmarks/artworks'],
         },
     ],
     name: 'User Bookmark',
@@ -58,7 +60,7 @@ async function handler(ctx) {
                 title: illust.title,
                 author: illust.user.name,
                 pubDate: parseDate(illust.create_date),
-                description: `<p>画师：${illust.user.name} - 阅览数：${illust.total_view} - 收藏数：${illust.total_bookmarks}</p>${images.join('')}`,
+                description: `${illust.caption}<br><p>画师：${illust.user.name} - 阅览数：${illust.total_view} - 收藏数：${illust.total_bookmarks}</p>${images.join('')}`,
                 link: `https://www.pixiv.net/artworks/${illust.id}`,
             };
         }),

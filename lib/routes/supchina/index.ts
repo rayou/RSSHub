@@ -1,7 +1,8 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 
 export const route: Route = {
@@ -40,7 +41,7 @@ async function handler(ctx) {
                 title: item.find('title').text(),
                 link: item.find('guid').text(),
                 author: item
-                    .find('dc\\:creator')
+                    .find(String.raw`dc\:creator`)
                     .html()
                     .match(/CDATA\[(.*?)]/)[1],
                 category: item

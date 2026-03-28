@@ -1,7 +1,8 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
 
@@ -52,14 +53,15 @@ async function handler(ctx) {
     const list = all
         .find(`div:nth-child(${columns[cate].order})`)
         .find('.mobile_none li , .mobile_clear li')
-        .map((_, item) => {
+        .toArray()
+        .map((item) => {
             const title = $(item).find('a.cjcx_biaob').text().trim();
             const href = $(item).find('a').attr('href');
 
             let absolute_path;
-            if (href.search('\\./') === 0) {
+            if (href.search(String.raw`\./`) === 0) {
                 absolute_path = `${url}${href.slice(2)}`;
-            } else if (href.search('\\./') === 1) {
+            } else if (href.search(String.raw`\./`) === 1) {
                 absolute_path = `${baseUrl}${href.slice(3)}`;
             } else {
                 absolute_path = href;
@@ -69,8 +71,7 @@ async function handler(ctx) {
                 title,
                 link,
             };
-        })
-        .get();
+        });
 
     const items = await Promise.all(
         list.map((item) =>

@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/prefer-code-point */
 const text_tag = {
     LINE_BREAK: 0,
     INLINE_CODE: 1,
@@ -60,7 +61,7 @@ class Ucs2Text {
         if (_end === 0) {
             return new Ucs2Text('');
         }
-        if (((isNaN(_start) || 0 > _start) && (_start = 0), (isNaN(_end) || 0 > _end) && (_end = _len), _start > _len && (_start = _len), _end > _len && (_end = _len), _end < _start)) {
+        if (((Number.isNaN(_start) || 0 > _start) && (_start = 0), (Number.isNaN(_end) || 0 > _end) && (_end = _len), _start > _len && (_start = _len), _end > _len && (_end = _len), _end < _start)) {
             _len = [_start, _end];
             _end = _len[0];
             _start = _len[1];
@@ -68,6 +69,7 @@ class Ucs2Text {
         return new Ucs2Text(_start === _end ? '' : this.codePoints.slice(_start, _end));
     }
     slice(a, b) {
+        // oxlint-disable-next-line unicorn/prefer-string-slice
         return this.substring(a, b).toString();
     }
     toString() {
@@ -75,7 +77,7 @@ class Ucs2Text {
             ? this.codePoints
                   .map((a) => {
                       let b = '';
-                      return 65535 < a && ((b += String.fromCharCode((((a -= 65536) >>> 10) & 1023) | 55296)), (a = 1023 & (56320 | a))), b + String.fromCharCode(a);
+                      return (65535 < a && ((b += String.fromCharCode((((a -= 65536) >>> 10) & 1023) | 55296)), (a = 1023 & (56320 | a))), b + String.fromCharCode(a));
                   })
                   .join('')
             : this.string;
@@ -169,7 +171,7 @@ const parseAttr = (description) => {
         q.push(render(e));
     }
     if (p < m.length) {
-        q.push(m.slice(p, m.length));
+        q.push(m.slice(p));
     }
     return q.join('');
 };

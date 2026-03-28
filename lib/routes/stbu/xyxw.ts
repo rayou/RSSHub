@@ -1,33 +1,42 @@
-import { Route } from '@/types';
-import cache from '@/utils/cache';
-import got from '@/utils/got';
 import { load } from 'cheerio';
 import iconv from 'iconv-lite';
+
+import type { Route } from '@/types';
+import cache from '@/utils/cache';
+import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
 
 const gbk2utf8 = (s) => iconv.decode(s, 'gbk');
 export const route: Route = {
     path: '/xyxw',
+    categories: ['university'],
+    example: '/stbu/xyxw',
+    parameters: {},
+    features: {
+        requireConfig: false,
+        requirePuppeteer: false,
+        antiCrawler: true,
+        supportBT: false,
+        supportPodcast: false,
+        supportScihub: false,
+    },
     radar: [
         {
-            source: ['stbu.edu.cn/html/news/xueyuan', 'stbu.edu.cn/'],
+            source: ['stbu.edu.cn/html/news/xueyuan', 'stbu.edu.cn'],
         },
     ],
-    name: 'Unknown',
+    name: '学院新闻',
     maintainers: ['HyperCherry'],
     handler,
     url: 'stbu.edu.cn/html/news/xueyuan',
 };
 
 async function handler() {
-    const baseUrl = 'https://www.stbu.edu.cn';
+    const baseUrl = 'http://www.stbu.edu.cn';
     const requestUrl = `${baseUrl}/html/news/xueyuan/`;
     const { data: response } = await got(requestUrl, {
         responseType: 'buffer',
-        https: {
-            rejectUnauthorized: false,
-        },
     });
     const $ = load(gbk2utf8(response));
     const list = $('.style_2 .Simple_title')
@@ -46,9 +55,6 @@ async function handler() {
             cache.tryGet(item.link, async () => {
                 const { data: response } = await got(item.link, {
                     responseType: 'buffer',
-                    https: {
-                        rejectUnauthorized: false,
-                    },
                 });
                 const $ = load(gbk2utf8(response));
                 item.description = $('.artmainl .articlemain').first().html();

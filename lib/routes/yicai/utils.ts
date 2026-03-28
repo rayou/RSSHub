@@ -1,12 +1,10 @@
-import { getCurrentPath } from '@/utils/helpers';
-const __dirname = getCurrentPath(import.meta.url);
+import { load } from 'cheerio';
 
 import got from '@/utils/got';
-import { load } from 'cheerio';
-import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
-import { art } from '@/utils/render';
-import path from 'node:path';
+import timezone from '@/utils/timezone';
+
+import { renderDescription } from './templates/description';
 
 const rootUrl = 'https://www.yicai.com';
 
@@ -22,7 +20,7 @@ const ProcessItems = async (apiUrl, tryGet) => {
         author: item.NewsAuthor || item.NewsSource || item.CreaterName,
         pubDate: timezone(parseDate(item.CreateDate), +8),
         category: [item.ChannelName],
-        description: art(path.join(__dirname, 'templates/description.art'), {
+        description: renderDescription({
             image: {
                 src: item.originPic,
                 alt: item.NewsTitle,
@@ -35,25 +33,31 @@ const ProcessItems = async (apiUrl, tryGet) => {
         }),
     }));
 
-    return Promise.all(
-        items.map((item) =>
-            tryGet(item.link, async () => {
-                const detailResponse = await got({
-                    method: 'get',
-                    url: item.link,
-                });
-
-                const content = load(detailResponse.data);
-
-                content('h1').remove();
-                content('.u-btn6, .m-smallshare, .topic-hot').remove();
-
-                item.description += content('.multiText, #multi-text, .txt').html() ?? '';
-
-                return item;
-            })
-        )
-    );
+    return Promise.all(fetchFullArticles(items, tryGet));
 };
+function fetchFullArticles(items, tryGet) {
+    return items.map((item) =>
+        tryGet(item.link, async () => {
+            const detailResponse = await got({
+                method: 'get',
+                url: item.link,
+            });
 
-export { rootUrl, ProcessItems };
+            const content = load(detailResponse.data);
+
+            if (!item.pubDate) {
+                const dataScript = content("script[src='/js/alert.min.js']").next().text() || content('title').next().text();
+                const pb = new Map(JSON.parse(dataScript.match(/_pb = (\[.*?]);/)[1].replaceAll("'", '"')));
+                item.pubDate = parseDate(`${pb.get('actime')}:00`);
+            }
+
+            content('h1').remove();
+            content('.u-btn6, .m-smallshare, .topic-hot').remove();
+
+            item.description = (item.description ?? '') + (content('.multiText, #multi-text, .txt').html() ?? '');
+
+            return item;
+        })
+    );
+}
+export { fetchFullArticles, ProcessItems, rootUrl };

@@ -1,13 +1,15 @@
-import { Route } from '@/types';
-import got from '@/utils/got';
 import { load } from 'cheerio';
 
+import type { Route } from '@/types';
+import got from '@/utils/got';
+
 export const route: Route = {
-    path: ['/', '/index'],
-    name: 'Unknown',
-    maintainers: [],
+    path: '/index',
+    name: 'Home',
+    example: '/nikkei/index',
+    maintainers: ['zjysdhr'],
     handler,
-    url: 'www.nikkei.com/',
+    url: 'www.nikkei.com',
 };
 
 async function handler() {

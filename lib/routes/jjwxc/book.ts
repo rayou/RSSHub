@@ -1,19 +1,19 @@
-import { Route } from '@/types';
-import { getCurrentPath } from '@/utils/helpers';
-const __dirname = getCurrentPath(import.meta.url);
-
-import cache from '@/utils/cache';
-import got from '@/utils/got';
 import { load } from 'cheerio';
 import iconv from 'iconv-lite';
-import timezone from '@/utils/timezone';
+
+import type { Route } from '@/types';
+import { ViewType } from '@/types';
+import cache from '@/utils/cache';
+import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
-import { art } from '@/utils/render';
-import path from 'node:path';
+import timezone from '@/utils/timezone';
+
+import { renderBookDescription } from './templates/book';
 
 export const route: Route = {
     path: '/book/:id?',
     categories: ['reading'],
+    view: ViewType.Notifications,
     example: '/jjwxc/book/7013024',
     parameters: { id: '作品 id，可在对应作品页中找到' },
     features: {
@@ -24,7 +24,7 @@ export const route: Route = {
         supportPodcast: false,
         supportScihub: false,
     },
-    name: '作品',
+    name: '作品章节',
     maintainers: ['nczitzk'],
     handler,
 };
@@ -63,11 +63,12 @@ async function handler(ctx) {
             const chapterUpdatedTime = item.find('td').last().text().trim();
 
             const isVip = item.find('span[itemprop="headline"] font').last().text() === '[VIP]';
+            const isLock = item.find('td').eq(1).last().text().trim() === '[锁]';
 
             return {
                 title: `${chapterName} ${chapterIntro}`,
                 link: chapterUrl,
-                description: art(path.join(__dirname, 'templates/book.art'), {
+                description: renderBookDescription({
                     chapterId,
                     chapterName,
                     chapterIntro,
@@ -81,6 +82,7 @@ async function handler(ctx) {
                 guid: `jjwxc-${id}#${chapterId}`,
                 pubDate: timezone(parseDate(chapterUpdatedTime), +8),
                 isVip,
+                isLock,
             };
         });
 
@@ -88,25 +90,27 @@ async function handler(ctx) {
 
     items = await Promise.all(
         items.slice(0, limit).map((item) =>
-            cache.tryGet(item.link, async () => {
-                if (!item.isVip) {
-                    const { data: detailResponse } = await got(item.link, {
-                        responseType: 'buffer',
-                    });
+            item.isLock
+                ? Promise.resolve(item)
+                : cache.tryGet(item.link, async () => {
+                      if (!item.isVip) {
+                          const { data: detailResponse } = await got(item.link, {
+                              responseType: 'buffer',
+                          });
 
-                    const content = load(iconv.decode(detailResponse, 'gbk'));
+                          const content = load(iconv.decode(detailResponse, 'gbk'));
 
-                    content('span.favorite_novel').parent().remove();
+                          content('span.favorite_novel').parent().remove();
 
-                    item.description += art(path.join(__dirname, 'templates/book.art'), {
-                        description: content('div.novelbody').html(),
-                    });
-                }
+                          item.description += renderBookDescription({
+                              description: content('div.novelbody').html() || undefined,
+                          });
+                      }
 
-                delete item.isVip;
+                      delete item.isVip;
 
-                return item;
-            })
+                      return item;
+                  })
         )
     );
 

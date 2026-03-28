@@ -1,6 +1,7 @@
-import { Route } from '@/types';
-import got from '@/utils/got';
 import { load } from 'cheerio';
+
+import type { Route } from '@/types';
+import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 
 const baseUrl = 'https://github.com';
@@ -32,7 +33,15 @@ export const route: Route = {
 async function handler(ctx) {
     const { user, repo, page } = ctx.req.param();
 
-    const url = `${baseUrl}/${user}/${repo}/wiki${page ? `/${page}` : ''}/_history`;
+    let url = `${baseUrl}/${user}/${repo}/wiki${page ? `/${page}` : ''}/_history`;
+
+    // Fetch page slug. History fetched with no page specified has no <a> tag for commit.
+    if (!page) {
+        const { data } = await got(`${baseUrl}/${user}/${repo}/wiki`);
+        const $ = load(data);
+
+        url = `${baseUrl}${$('a[href$=_history]').attr('href')}`;
+    }
 
     const { data } = await got(url);
     const $ = load(data);

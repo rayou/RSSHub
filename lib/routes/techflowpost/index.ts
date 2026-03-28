@@ -1,17 +1,20 @@
-import { Route } from '@/types';
+import type { Route } from '@/types';
+import { ViewType } from '@/types';
 import got from '@/utils/got';
-import timezone from '@/utils/timezone';
 import { parseDate } from '@/utils/parse-date';
+import timezone from '@/utils/timezone';
 
 export const route: Route = {
     path: '/',
+    example: '/techflowpost',
     radar: [
         {
             source: ['techflowpost.com/'],
-            target: '',
         },
     ],
-    name: 'Unknown',
+    name: '首页',
+    categories: ['finance'],
+    view: ViewType.Articles,
     maintainers: ['nczitzk'],
     handler,
     url: 'techflowpost.com/',

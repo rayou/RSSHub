@@ -1,7 +1,8 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
 
@@ -9,16 +10,16 @@ const baseUrl = 'https://u9a9.com';
 
 export const route: Route = {
     path: ['/:preview?', '/search/:keyword/:preview?'],
+    example: '/u9a9/search/新片速递',
     radar: [
         {
             source: ['u9a9.com/'],
             target: '',
         },
     ],
-    name: 'Unknown',
+    name: 'Search',
     maintainers: ['TonyRL'],
     handler,
-    url: 'u9a9.com/',
     url: 'u9a9.com/',
 };
 

@@ -1,12 +1,13 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 
 export const route: Route = {
     path: ['/search/:keyword/:preview?', '/:type?/:preview?'],
     categories: ['multimedia'],
-    example: '/u9a9/search/新片速递',
+    example: '/u3c3/search/新片速递',
     parameters: { keyword: 'Search keyword', preview: 'Show image preview, off by default, non empty value means on' },
     features: {
         requireConfig: false,

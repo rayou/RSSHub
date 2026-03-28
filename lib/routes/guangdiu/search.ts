@@ -1,7 +1,8 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseRelativeDate } from '@/utils/parse-date';
 
 const host = 'https://guangdiu.com';
@@ -9,7 +10,7 @@ const host = 'https://guangdiu.com';
 export const route: Route = {
     path: '/search/:query?',
     categories: ['shopping'],
-    example: '/guangdiu/search/k=百度网盘',
+    example: '/guangdiu/search/q=百度网盘',
     parameters: { query: '链接参数，对应网址问号后的内容' },
     features: {
         requireConfig: false,
@@ -30,11 +31,11 @@ async function handler(ctx) {
     const response = await got(url);
     const $ = load(response.data);
     const list = $('#mainleft > div.zkcontent > div.gooditem')
-        .map((_index, item) => ({
+        .toArray()
+        .map((item) => ({
             title: $(item).find('a.goodname').text().trim(),
             link: `${host}/${$(item).find('a.goodname').attr('href')}`,
-        }))
-        .get();
+        }));
 
     const items = await Promise.all(
         list.map((item) =>

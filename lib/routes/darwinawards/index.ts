@@ -1,20 +1,20 @@
-import { Route } from '@/types';
-import cache from '@/utils/cache';
-import got from '@/utils/got';
 import { load } from 'cheerio';
 
+import type { Route } from '@/types';
+import cache from '@/utils/cache';
+import got from '@/utils/got';
+
 export const route: Route = {
-    path: ['/all', '/'],
+    name: 'Award Winners',
+    example: '/darwinawards',
+    path: '/',
     radar: [
         {
             source: ['darwinawards.com/darwin', 'darwinawards.com/'],
-            target: '',
         },
     ],
-    name: 'Unknown',
     maintainers: ['zoenglinghou', 'nczitzk'],
     handler,
-    url: 'darwinawards.com/darwin',
     url: 'darwinawards.com/darwin',
 };
 

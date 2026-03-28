@@ -1,11 +1,9 @@
-import { getCurrentPath } from '@/utils/helpers';
-const __dirname = getCurrentPath(import.meta.url);
+import { load } from 'cheerio';
 
 import got from '@/utils/got';
-import { load } from 'cheerio';
 import { parseDate } from '@/utils/parse-date';
-import { art } from '@/utils/render';
-import path from 'node:path';
+
+import { renderDescription } from './templates/description';
 
 const rootUrl = 'https://nzmz.xyz';
 
@@ -145,19 +143,18 @@ const processItems = async (i, downLinkType, itemSelector, categorySelector, dow
                 guid,
                 title,
                 link: i.link,
-                description: art(path.join(__dirname, 'templates/description.art'), {
+                description: renderDescription({
                     ...i.description,
-
                     categories,
                     downLinks,
                 }),
                 author: i.author,
                 category: [...i.category, ...categories].filter(Boolean),
                 pubDate: i.pubDate,
-                enclosure_url: downLinks.filter((l) => l.title === downLinkType).pop()?.link ?? downLinks[0].link,
+                enclosure_url: downLinks.findLast((l) => l.title === downLinkType)?.link ?? downLinks[0].link,
                 enclosure_type: 'application/x-bittorrent',
             };
         });
 };
 
-export { rootUrl, getItems, getItemInfo, processItems };
+export { getItemInfo, getItems, processItems, rootUrl };

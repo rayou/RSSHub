@@ -1,6 +1,8 @@
-import { Route } from '@/types';
-import cache from '@/utils/cache';
 import { load } from 'cheerio';
+
+import type { Route } from '@/types';
+import { ViewType } from '@/types';
+import cache from '@/utils/cache';
 import got from '@/utils/got';
 import { parseDate } from '@/utils/parse-date';
 import timezone from '@/utils/timezone';
@@ -8,6 +10,7 @@ import timezone from '@/utils/timezone';
 export const route: Route = {
     path: '/apod',
     categories: ['picture'],
+    view: ViewType.Pictures,
     example: '/bjp/apod',
     parameters: {},
     features: {
@@ -29,7 +32,7 @@ export const route: Route = {
     url: 'bjp.org.cn/APOD/today.shtml',
 };
 
-async function handler() {
+async function handler(ctx) {
     const baseUrl = 'https://www.bjp.org.cn';
     const listUrl = `${baseUrl}/APOD/list.shtml`;
 
@@ -46,7 +49,9 @@ async function handler() {
                 link: `${baseUrl}${e.find('a').attr('href')}`,
                 pubDate: timezone(parseDate(e.find('span').text().replace('：', ''), 'YYYY-MM-DD'), 8),
             };
-        });
+        })
+        .toSorted((a, b) => b.pubDate - a.pubDate)
+        .slice(0, ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 10);
 
     const items = await Promise.all(
         list.map((e) =>

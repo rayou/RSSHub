@@ -1,9 +1,11 @@
-import { Route } from '@/types';
+import { load } from 'cheerio';
+
+import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
-import { load } from 'cheerio';
-const currentURL = 'https://zh.wikinews.org/wiki/Special:%E6%96%B0%E9%97%BB%E8%AE%A2%E9%98%85';
 import { parseDate } from '@/utils/parse-date';
+
+const currentURL = 'https://zh.wikinews.org/wiki/Special:%E6%96%B0%E9%97%BB%E8%AE%A2%E9%98%85';
 
 export const route: Route = {
     path: '/latest',
@@ -37,10 +39,10 @@ async function handler() {
         .map((item) => {
             item = $(item);
             return {
-                title: item.find('news\\:title').text(),
-                pubDate: parseDate(item.find('news\\:publication_date').text()),
+                title: item.find(String.raw`news\:title`).text(),
+                pubDate: parseDate(item.find(String.raw`news\:publication_date`).text()),
                 category: item
-                    .find('news\\:keywords')
+                    .find(String.raw`news\:keywords`)
                     .text()
                     .split(',')
                     .map((item) => item.trim()),
