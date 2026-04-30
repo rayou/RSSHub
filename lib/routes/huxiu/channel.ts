@@ -2,7 +2,7 @@ import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import got from '@/utils/got';
 
-import { apiArticleRootUrl, fetchData, processItems, rootUrl } from './util';
+import { apiArticleRootUrl, buildFeedMetadata, buildHuxiuRouteTitlePrefix, processItems, rootUrl } from './util';
 
 export const route: Route = {
     path: ['/article', '/channel/:id?'],
@@ -43,7 +43,7 @@ async function handler(ctx) {
     const id = ctx.req.param('id');
     const limit = ctx.req.query('limit') ? Number.parseInt(ctx.req.query('limit'), 10) : 20;
 
-    const apiUrl = new URL(`web/channel/articleListV1`, apiArticleRootUrl).href;
+    const apiUrl = new URL('web/channel/articleListV1', apiArticleRootUrl).href;
     const currentUrl = new URL(id ? `channel/${id}.html` : 'article', rootUrl).href;
 
     const { data: response } = await got.post(apiUrl, {
@@ -55,8 +55,17 @@ async function handler(ctx) {
     });
 
     const items = await processItems(response.data?.dataList ?? response.data.datalist, limit, cache.tryGet);
+    const rawTitle = response.data?.share_info?.share_title ?? response.data?.name ?? '全部';
 
-    const data = await fetchData(currentUrl);
+    const data = buildFeedMetadata({
+        title: rawTitle,
+        link: currentUrl,
+        description: response.data?.share_info?.share_desc || rawTitle,
+        image: response.data?.share_info?.share_img,
+        subtitle: rawTitle,
+        titlePrefix: buildHuxiuRouteTitlePrefix(route.name),
+        descriptionPrefix: buildHuxiuRouteTitlePrefix(route.name),
+    });
 
     return {
         item: items,

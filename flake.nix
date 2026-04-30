@@ -16,7 +16,7 @@
           deps = pkgs.fetchPnpmDeps {
             pname = "rsshub";
             src = ./.;
-            hash = "sha256-QG1cIkZh+qBA5Dipt0iDLuQpEOI45wdFhuG/CTcRVU8=";
+            hash = "sha256-s6n6MhxSCTQMRw5v1nufXdgLPLRCsjrpRoWQC5zr5xY=";
             fetcherVersion = 2;
           };
         in

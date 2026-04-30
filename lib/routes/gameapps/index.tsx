@@ -11,6 +11,7 @@ import parser from '@/utils/rss-parser';
 export const route: Route = {
     path: '/',
     example: '/gameapps',
+    categories: ['game'],
     radar: [
         {
             source: ['gameapps.hk/'],
@@ -36,42 +37,20 @@ async function handler() {
                 });
                 const $ = load(response);
 
-                item.title = $('meta[property="og:title"]').attr('content') ?? $('.news-title h1').text();
-
-                const nextPages = $('.pagination li')
-                    .not('.disabled')
-                    .not('.active')
-                    .find('a')
+                item.title = ($('meta[property="og:title"]').attr('content') ?? $('.news-title h1').text()).replace(' - 香港手機遊戲網 GameApps.hk', '');
+                item.category = $('.tags-wrap .tag-item')
                     .toArray()
-                    .map((a) => `${baseUrl}${a.attribs.href}`);
+                    .map((el) => $(el).text().trim().replace(/^#/, ''));
 
-                $('.pages').remove();
-
-                const content = $('.news-content');
+                $('.pages, .article-ad, .social-actions, .news-footer').remove();
 
                 // remove unwanted key value
                 delete item.content;
                 delete item.contentSnippet;
                 delete item.isoDate;
 
-                if (nextPages.length) {
-                    const pages = await Promise.all(
-                        nextPages.map(async (url) => {
-                            const response = await ofetch(url, {
-                                headers: {
-                                    referer: item.link,
-                                },
-                            });
-                            const $ = load(response);
-                            $('.pages').remove();
-                            return $('.news-content').html();
-                        })
-                    );
-                    content.append(pages);
-                }
-
                 const intro = $('div.introduction.media.news-intro div.media-body').html()?.trim();
-                const desc = content.html()?.trim();
+                const desc = $('.article-content, .news-content').html()?.trim();
                 item.description = renderToString(
                     <>
                         {intro ? raw(intro) : null}

@@ -35,6 +35,7 @@ updates:
                   - '@oxlint/*'
                   - 'oxfmt'
                   - 'oxlint'
+                  - 'oxlint-plugin-eslint'
                   - 'oxlint-tsgolint'
           proxy-agent:
               patterns:
@@ -44,6 +45,19 @@ updates:
           typescript-eslint:
               patterns:
                   - '@typescript-eslint/*'
+          vitest:
+              patterns:
+                  - 'vitest'
+                  - '@vitest/coverage-v8'
+
+    - package-ecosystem: 'nix'
+      directory: '/'
+      schedule:
+          interval: daily
+          time: '08:00'
+      open-pull-requests-limit: 100
+      labels:
+          - dependencies
 
     - package-ecosystem: 'github-actions'
       directory: '/'

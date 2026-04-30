@@ -62,6 +62,7 @@ export default defineConfig({
     entry: ['./lib/worker.ts'],
     outDir: 'dist-worker',
     format: 'esm',
+    dts: false,
     minify: true,
     clean: true,
     platform: 'node',
@@ -76,12 +77,6 @@ export default defineConfig({
         __dirname: JSON.stringify('/worker'),
         __filename: JSON.stringify('/worker/index.mjs'),
     },
-    external: [
-        // Exclude non-code files that might be accidentally imported
-        /\/_README$/,
-        /\.node$/,
-    ],
-    noExternal: [/.*/],
     plugins: [workerAliasPlugin()],
     alias: {
         // External dependencies that need Worker-compatible replacements
@@ -89,6 +84,7 @@ export default defineConfig({
         'node:child_process': path.resolve('./lib/shims/node-child-process.ts'),
         'dotenv/config': path.resolve('./lib/shims/dotenv-config.ts'),
         '@sentry/node': path.resolve('./lib/shims/sentry-node.ts'),
+        '@honeybadger-io/js': path.resolve('./lib/shims/honeybadger.ts'),
         'xxhash-wasm': path.resolve('./lib/shims/xxhash-wasm.ts'),
         // Routes file with Worker-specific build (match relative import from lib/)
         '../assets/build/routes.js': path.resolve('./assets/build/routes-worker.js'),
@@ -97,5 +93,11 @@ export default defineConfig({
     },
     deps: {
         onlyBundle: false,
+        neverBundle: [
+            // Exclude non-code files that might be accidentally imported
+            /\/_README$/,
+            /\.node$/,
+        ],
+        alwaysBundle: [/.*/],
     },
 });
