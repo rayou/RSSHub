@@ -1,10 +1,10 @@
-import type { Route } from '@/types';
+import type { Data, Route } from '@/types';
 
 import { applyLanguageToTagSlug, CHANNEL_TAG_MAP, ghostFetch, postsToItems } from './utils';
 
 // Reason: Old app categories map to Ghost channel tag + language.
 // The _sc suffix = Simplified Chinese (zh-hans), _tc = Traditional Chinese (zh-hant).
-const APP_CATEGORY_MAP: Record<string, { channelType: string; language: string }> = {
+const APP_CATEGORY_MAP = {
     latest_sc: { channelType: 'latest', language: 'zh-hans' },
     latest_tc: { channelType: 'latest', language: 'zh-hant' },
     daily_brief_sc: { channelType: 'daily-brief', language: 'zh-hans' },
@@ -23,10 +23,10 @@ const APP_CATEGORY_MAP: Record<string, { channelType: string; language: string }
     hongkong_tc: { channelType: 'hongkong', language: 'zh-hant' },
     taiwan_sc: { channelType: 'taiwan', language: 'zh-hans' },
     taiwan_tc: { channelType: 'taiwan', language: 'zh-hant' },
-};
+} satisfies Record<string, { channelType: string; language: string }>;
 
 // Reason: Display labels for the old app categories, kept for RSS feed titles
-const APP_CATEGORY_LABELS: Record<string, string> = {
+const APP_CATEGORY_LABELS = {
     latest_sc: '最新',
     latest_tc: '最新',
     daily_brief_sc: '日报',
@@ -45,7 +45,7 @@ const APP_CATEGORY_LABELS: Record<string, string> = {
     hongkong_tc: '香港',
     taiwan_sc: '台湾',
     taiwan_tc: '台灣',
-};
+} satisfies Record<string, string>;
 
 export const route: Route = {
     path: '/app/:category?',
@@ -69,7 +69,7 @@ export const route: Route = {
         supportScihub: false,
     },
     name: 'App',
-    maintainers: ['quiniapiezoelectricity'],
+    maintainers: ['quiniapiezoelectricity', 'pseudoyu'],
     radar: [
         {
             source: ['theinitium.com/latest/'],
@@ -79,24 +79,24 @@ export const route: Route = {
     handler,
     description: `Category 栏目：
 
-| ----- | 简体中文     | 繁體中文      |
-| ----- | ----------------- | ---------------- |
-| 最新   | latest_sc | latest_tc |
-| 日报   | daily_brief_sc | daily_brief_tc |
-| 速递   | whats_new_sc | whats_new_tc |
-| 专题   | report_sc | report_tc |
-| 评论   | opinion_sc | opinion_tc |
-| 国际   | international_sc | international_tc |
-| 大陆   | mainland_sc | mainland_tc |
-| 香港   | hongkong_sc | hongkong_tc |
-| 台湾   | taiwan_sc | taiwan_tc |
+| ----- | 简体中文          | 繁體中文          |
+| ----- | ----------------- | ----------------- |
+| 最新  | latest\\_sc        | latest\\_tc        |
+| 日报  | daily\\_brief\\_sc  | daily\\_brief\\_tc  |
+| 速递  | whats\\_new\\_sc    | whats\\_new\\_tc    |
+| 专题  | report\\_sc        | report\\_tc        |
+| 评论  | opinion\\_sc       | opinion\\_tc       |
+| 国际  | international\\_sc | international\\_tc |
+| 大陆  | mainland\\_sc      | mainland\\_tc      |
+| 香港  | hongkong\\_sc      | hongkong\\_tc      |
+| 台湾  | taiwan\\_sc        | taiwan\\_tc        |
 
-:::tip
-原 App 路由已迁移至 Ghost CMS API。播客（article_audio）分类已停用，请改用 \`/theinitium/channel\` 路由。
+::: tip
+原 App 路由已迁移至 Ghost CMS API。播客（article\\_audio）分类已停用，请改用 \`/theinitium/channel\` 路由。
 :::`,
 };
 
-async function handler(ctx) {
+async function handler(ctx): Promise<Data> {
     const category = ctx.req.param('category') ?? 'latest_sc';
 
     const mapping = APP_CATEGORY_MAP[category];
@@ -117,7 +117,7 @@ async function handler(ctx) {
         filter = `tag:${tagSlug}`;
     }
 
-    const params: Record<string, string> = {
+    const params = {
         include: 'tags,authors',
         limit: '20',
         filter,

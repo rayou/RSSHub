@@ -2,7 +2,7 @@ import type { Route } from '@/types';
 import ofetch from '@/utils/ofetch';
 import { parseDate } from '@/utils/parse-date';
 
-const categoryMap: Record<string, string> = {
+const categoryMap = {
     1: '大前端',
     2: 'Java',
     3: '音视频',
@@ -36,28 +36,23 @@ export const route: Route = {
     name: '技术博客',
     maintainers: ['zhenlohuang'],
     handler,
-    description: `| 分类 | ID |
-| --- | --- |
-| 大前端 | 1 |
-| Java | 2 |
-| 音视频 | 3 |
-| 测试 | 4 |
-| Golang | 5 |
-| AI&数据 | 6 |
-| 运维&稳定生产 | 7 |
-| 技术思考 | 8 |`,
+    description: `| 分类            | ID |
+| --------------- | -- |
+| 大前端          | 1  |
+| Java            | 2  |
+| 音视频          | 3  |
+| 测试            | 4  |
+| Golang          | 5  |
+| AI & 数据       | 6  |
+| 运维 & 稳定生产 | 7  |
+| 技术思考        | 8  |`,
 };
 
 async function handler(ctx) {
     const categoryId = ctx.req.param('categoryId');
 
-    const params: Record<string, string> = { page: '1' };
-    if (categoryId) {
-        params.category_id = categoryId;
-    }
-
     const response = await ofetch('https://tech.dewu.com/api/v1/article', {
-        query: params,
+        query: categoryId ? { page: '1', category_id: categoryId } : { page: '1' },
     });
 
     const items = response.data.data.map((item) => ({

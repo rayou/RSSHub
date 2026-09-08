@@ -8,7 +8,7 @@ import { parseDate } from '@/utils/parse-date';
 
 export const handler = async (ctx: Context): Promise<Data> => {
     const { topic, locale } = ctx.req.param();
-    const limit: number = Number.parseInt(ctx.req.query('limit') ?? '10', 10);
+    const limit = Number(ctx.req.query('limit') ?? '10');
 
     const baseUrl = 'https://cursor.com';
     const normalizedTopic = topic === 'all' ? undefined : topic;
@@ -28,9 +28,9 @@ export const handler = async (ctx: Context): Promise<Data> => {
             const $el = $(el);
             const $link = $el.find('a').first();
 
-            const title = $link.find('p').first().text().trim();
-            const description = $link.find('p').eq(1).text().trim();
-            const pubDate = parseDate($el.find('time').first().text().trim());
+            const title = $link.find('p').first().text();
+            const description = $link.find('p').eq(1).text();
+            const pubDate = parseDate($el.find('time').first().text());
 
             const href = $link.attr('href');
             const link = href ? new URL(href, baseUrl).href : undefined;

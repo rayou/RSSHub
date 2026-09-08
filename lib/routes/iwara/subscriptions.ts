@@ -6,7 +6,7 @@ import ConfigNotFoundError from '@/errors/types/config-not-found';
 import type { Route } from '@/types';
 import cache from '@/utils/cache';
 import { parseDate } from '@/utils/parse-date';
-import { getPuppeteerPage } from '@/utils/puppeteer';
+import { getPlaywrightPage } from '@/utils/playwright';
 
 import { renderSubscriptionImages } from './templates/subscriptions';
 import { apiqRootUrl, imageRootUrl, rootUrl } from './utils';
@@ -57,7 +57,7 @@ export const route: Route = {
     handler,
     url: 'www.iwara.tv/',
     description: `::: warning
-  This route requires username and password, therefore it's only available when self-hosting, refer to the [Deploy Guide](https://docs.rsshub.app/deploy/config#route-specific-configurations) for route-specific configurations.
+This route requires username and password, therefore it's only available when self-hosting, refer to the [Deploy Guide](https://docs.rsshub.app/deploy/config#route-specific-configurations) for route-specific configurations.
 :::`,
 };
 
@@ -69,7 +69,7 @@ async function handler() {
     const username = config.iwara.username;
     const password = config.iwara.password;
 
-    const { page, destory } = await getPuppeteerPage(rootUrl, {
+    const { page, destroy } = await getPlaywrightPage(rootUrl, {
         gotoConfig: {
             waitUntil: 'domcontentloaded',
         },
@@ -113,7 +113,10 @@ async function handler() {
             async () => {
                 const result = await fetchApi(`${apiqRootUrl}/user/token`, {
                     method: 'POST',
-                    headers: { ...apiHeaders, Authorization: refreshHeaders.authorization },
+                    headers: {
+                        ...apiHeaders,
+                        Authorization: refreshHeaders.authorization,
+                    },
                 });
                 return { authorization: 'Bearer ' + result.accessToken };
             },
@@ -121,7 +124,10 @@ async function handler() {
             false
         );
 
-        const authedHeaders = { ...apiHeaders, Authorization: authHeaders.authorization };
+        const authedHeaders = {
+            ...apiHeaders,
+            Authorization: authHeaders.authorization,
+        };
 
         // fetch subscriptions
         const [videoResponse, imageResponse] = await Promise.all([
@@ -177,7 +183,9 @@ async function handler() {
                     }
 
                     const apiUrl = item.link.replace('www.iwara.tv', 'apiq.iwara.tv');
-                    const response = await fetchApi(apiUrl, { headers: authedHeaders });
+                    const response = await fetchApi(apiUrl, {
+                        headers: authedHeaders,
+                    });
 
                     description = renderSubscriptionImages(response.files ? response.files.filter((f) => f.type === 'image').map((f) => `${imageRootUrl}/image/original/${f.id}/${f.name}`) : [item.imageUrl]);
 
@@ -202,6 +210,6 @@ async function handler() {
             item: items,
         };
     } finally {
-        await destory();
+        await destroy();
     }
 }

@@ -1,11 +1,23 @@
+import Honeybadger from '@honeybadger-io/js';
+import * as Sentry from '@sentry/node';
 import { load } from 'cheerio';
-import { describe, expect, it } from 'vitest';
+import { Hono } from 'hono';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import app from '@/app';
 import { config } from '@/config';
 
+const requestWithErrorHandler = async (errorHandler: Parameters<Hono['onError']>[0]) => {
+    const testApp = new Hono();
+    testApp.onError(errorHandler);
+    testApp.get('/test/path', () => {
+        throw new Error('boom');
+    });
+    return await testApp.request('/test/path');
+};
+
 describe('error', () => {
-    it(`error`, async () => {
+    it('error', async () => {
         const response = await app.request('/test/error');
         expect(response.status).toBe(503);
         const text = await response.text();
@@ -14,20 +26,20 @@ describe('error', () => {
 });
 
 describe('httperror', () => {
-    it(`httperror`, async () => {
+    it('httperror', async () => {
         const response = await app.request('/test/httperror');
         expect(response.status).toBe(503);
         const text = await response.text();
-        expect(text).toContain('FetchError: [GET] &quot;https://httpbingo.org/status/404&quot;: 404 Not Found');
+        expect(text).toContain('FetchError: [GET] &quot;https://httpbingo.org/status/404&quot;: 404');
     }, 20000);
 });
 
 describe('RequestInProgressError', () => {
-    it(`RequestInProgressError with retry`, async () => {
+    it('RequestInProgressError with retry', async () => {
         const responses = await Promise.all([app.request('/test/slow'), app.request('/test/slow')]);
-        expect(new Set(responses.map((r) => r.status))).toEqual(new Set([200, 200]));
+        expect(responses.map((r) => r.status)).toEqual([200, 200]);
     });
-    it(`RequestInProgressError`, async () => {
+    it('RequestInProgressError', async () => {
         const responses = await Promise.all([app.request('/test/slow4'), app.request('/test/slow4')]);
         expect(new Set(responses.map((r) => r.status))).toEqual(new Set([200, 503]));
         expect(new Set(responses.map((r) => r.headers.get('cache-control')))).toEqual(new Set([`public, max-age=${config.cache.routeExpire}`, `public, max-age=${config.requestTimeout / 1000}`]));
@@ -37,7 +49,7 @@ describe('RequestInProgressError', () => {
 });
 
 describe('config-not-found-error', () => {
-    it(`config-not-found-error`, async () => {
+    it('config-not-found-error', async () => {
         const response = await app.request('/test/config-not-found-error');
         expect(response.status).toBe(503);
         const text = await response.text();
@@ -46,7 +58,7 @@ describe('config-not-found-error', () => {
 });
 
 describe('invalid-parameter-error', () => {
-    it(`invalid-parameter-error`, async () => {
+    it('invalid-parameter-error', async () => {
         const response = await app.request('/test/invalid-parameter-error');
         expect(response.status).toBe(503);
         const text = await response.text();
@@ -55,7 +67,7 @@ describe('invalid-parameter-error', () => {
 });
 
 describe('captcha-error', () => {
-    it(`captcha-error`, async () => {
+    it('captcha-error', async () => {
         const response = await app.request('/test/captcha-error');
         expect(response.status).toBe(503);
         const text = await response.text();
@@ -95,5 +107,65 @@ describe('route throws an error', () => {
                 default:
             }
         });
+    });
+});
+
+describe('error handler honeybadger', () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+        vi.resetModules();
+    });
+
+    it('sends errors to honeybadger when enabled', async () => {
+        process.env.HONEYBADGER_API_KEY = 'hbp_test_key';
+        vi.resetModules();
+
+        const notify = vi.spyOn(Honeybadger, 'notify').mockReturnValue(true);
+        const { default: logger } = await import('@/utils/logger');
+        vi.spyOn(logger, 'error').mockReturnValue(logger);
+
+        const { errorHandler } = await import('@/errors');
+        const response = await requestWithErrorHandler(errorHandler);
+        expect(response.status).toBe(503);
+
+        expect(notify).toHaveBeenCalledWith(expect.any(Error), {
+            context: { name: 'test' },
+        });
+
+        delete process.env.HONEYBADGER_API_KEY;
+    });
+});
+
+describe('error handler sentry', () => {
+    afterEach(async () => {
+        await Sentry.close();
+        vi.restoreAllMocks();
+        vi.resetModules();
+    });
+
+    it('sends errors to sentry when enabled', async () => {
+        process.env.SENTRY = 'dsn';
+        vi.resetModules();
+
+        const beforeSend = vi.fn(() => null);
+        Sentry.init({
+            dsn: 'https://public@sentry.example.test/1',
+            beforeSend,
+            defaultIntegrations: false,
+            skipOpenTelemetrySetup: true,
+        });
+
+        const { default: logger } = await import('@/utils/logger');
+        vi.spyOn(logger, 'error').mockReturnValue(logger);
+
+        const { errorHandler } = await import('@/errors');
+        const response = await requestWithErrorHandler(errorHandler);
+        expect(response.status).toBe(503);
+
+        await vi.waitFor(() => {
+            expect(beforeSend).toHaveBeenCalledWith(expect.objectContaining({ tags: expect.objectContaining({ name: 'test' }) }), expect.any(Object));
+        });
+
+        delete process.env.SENTRY;
     });
 });

@@ -38,9 +38,9 @@ export const route: Route = {
     ],
     name: 'Popular Recent Posts',
     maintainers: ['magic-akari', 'NekoAria', 'sineeeee'],
-    description: `| 最近 24 小时    | 最近一周     | 最近一月    | 最近一年     |
-| ------- | -------- | ------- | -------- |
-| 1d | 1w | 1m | 1y |`,
+    description: `| 最近 24 小时 | 最近一周 | 最近一月 | 最近一年 |
+| ------------ | -------- | -------- | -------- |
+| 1d           | 1w       | 1m       | 1y       |`,
     handler,
     features: {
         nsfw: true,
@@ -68,7 +68,7 @@ async function handler(ctx) {
         '1y': 'Last year',
     };
 
-    const mime: Record<string, string> = {
+    const mime = {
         jpg: 'jpeg',
         png: 'png',
     };

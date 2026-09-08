@@ -5,7 +5,7 @@ import type { Data, DataItem, Route } from '@/types';
 import { ViewType } from '@/types';
 import cache from '@/utils/cache';
 import { parseDate } from '@/utils/parse-date';
-import { getPuppeteerPage } from '@/utils/puppeteer';
+import { getPlaywrightPage } from '@/utils/playwright';
 
 export const route: Route = {
     path: '/blog',
@@ -23,7 +23,7 @@ export const route: Route = {
     },
     radar: [
         {
-            source: ['www.perplexity.ai/hub'],
+            source: ['www.perplexity.ai/hub/blog'],
             target: '/blog',
         },
     ],
@@ -35,19 +35,19 @@ export const route: Route = {
 };
 
 async function handler(ctx: Context) {
-    const limit = Number.parseInt(ctx.req.query('limit') ?? '20', 10);
-    const rootUrl = 'https://www.perplexity.ai/hub';
+    const limit = Number(ctx.req.query('limit') ?? '20');
+    const rootUrl = 'https://www.perplexity.ai/hub/blog';
 
-    const { page, destory, browser } = await getPuppeteerPage(rootUrl, {
+    const { page, destroy, context } = await getPlaywrightPage(rootUrl, {
         onBeforeLoad: async (page) => {
-            await page.setRequestInterception(true);
-            page.on('request', (request) => {
-                request.resourceType() === 'document' ? request.continue() : request.abort();
+            await page.route('**/*', (route) => {
+                const request = route.request();
+                request.resourceType() === 'document' ? route.continue() : route.abort();
             });
         },
     });
 
-    const html = await page.evaluate(() => document.documentElement.innerHTML);
+    const html = await page.evaluate(() => document.documentElement.getHTML());
     const $ = load(html);
 
     const items: DataItem[] = [];
@@ -56,7 +56,7 @@ async function handler(ctx: Context) {
 
     // Step 1: Extract featured article using data-framer-name attribute
     const featuredCard = $('[data-framer-name="Featured Card"]').first();
-    const featuredHref = featuredCard.find('a[href^="./hub/blog/"]').first().attr('href');
+    const featuredHref = featuredCard.find('a[href^="./blog/"]').attr('href');
     const featuredTitle = featuredCard.find('h4').first().text().trim();
 
     if (featuredHref && featuredTitle) {
@@ -111,22 +111,24 @@ async function handler(ctx: Context) {
                 return item;
             }
 
-            return (await cache.tryGet(item.link, async () => {
-                const contentPage = await browser.newPage();
+            return await cache.tryGet<DataItem>(item.link, async () => {
+                const contentPage = await context.newPage();
 
-                await contentPage.setRequestInterception(true);
-                contentPage.on('request', (request) => {
-                    request.resourceType() === 'document' ? request.continue() : request.abort();
+                await contentPage.route('**/*', (route) => {
+                    const request = route.request();
+                    request.resourceType() === 'document' ? route.continue() : route.abort();
                 });
 
-                await contentPage.goto(item.link!, { waitUntil: 'domcontentloaded' });
+                await contentPage.goto(item.link!, {
+                    waitUntil: 'domcontentloaded',
+                });
 
-                const contentHtml = await contentPage.evaluate(() => document.documentElement.innerHTML);
+                const contentHtml = await contentPage.evaluate(() => document.documentElement.getHTML());
                 await contentPage.close();
 
                 const $content = load(contentHtml);
 
-                let pubDate: string | number | Date | undefined = item.pubDate;
+                let pubDate: string | number | Date | undefined = item.pubDate ?? undefined;
                 if (!pubDate) {
                     const timeEl = $content('time[datetime]').first();
                     if (timeEl.length) {
@@ -134,21 +136,21 @@ async function handler(ctx: Context) {
                     }
                 }
 
-                $content('script, style, noscript').remove();
+                $content('style, noscript').remove();
 
                 const contentArea = $content('[data-framer-name="Content"]').first();
-                const description = contentArea.length ? (contentArea.html() ?? undefined) : undefined;
+                const description = contentArea.length ? contentArea.html() : undefined;
 
                 return {
                     ...item,
                     pubDate,
                     description,
-                } as DataItem;
-            })) as DataItem;
+                };
+            });
         })
     );
 
-    await destory();
+    await destroy();
 
     return {
         title: 'Perplexity Blog',

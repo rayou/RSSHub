@@ -1,3 +1,4 @@
+import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
 
@@ -5,7 +6,9 @@ const noFound = 'auto: route no found';
 const criticalFailure = 'auto: DO NOT merge';
 const routeTestFailed = 'auto: not ready to review';
 const allowedUser = new Set(['dependabot[bot]', 'pull[bot]']); // dependabot and downstream PR requested by pull[bot]
-const requiredHeading = 'Example for the Proposed Route(s) / 路由地址示例';
+const requiredHeadings = ['Involved Issue / 该 PR 相关 Issue', 'Example for the Proposed Route(s) / 路由地址示例', 'New RSS Route Checklist / 新 RSS 路由检查表', 'Note / 说明'];
+const routeHeading = requiredHeadings[1];
+const checklistHeading = requiredHeadings[2];
 
 /** @type {boolean} */
 const isPR = Boolean(process.env.PULL_REQUEST);
@@ -31,55 +34,62 @@ export default async function identify({ github, context, core }, body, number, 
         repo: context.repo.repo,
         pull_number: number,
     };
-    /** @type {Awaited<ReturnType<typeof github.rest.issues.get>>} */
-    const { data: issue } = await github.rest.issues
-        .get({
+    let issue;
+    try {
+        /** @type {Awaited<ReturnType<typeof github.rest.issues.get>>} */
+        const response = await github.rest.issues.get({
             ...issueFacts,
-        })
-        .catch((error) => {
-            core.warning(error);
         });
+        issue = response.data;
+    } catch (error) {
+        core.warning(error);
+        throw error;
+    }
 
     /** @param {string[]} labels */
-    const addLabels = (labels) =>
-        github.rest.issues
-            .addLabels({
+    const addLabels = async (labels) => {
+        try {
+            return await github.rest.issues.addLabels({
                 ...issueFacts,
                 labels,
-            })
-            .catch((error) => {
-                core.warning(error);
             });
+        } catch (error) {
+            core.warning(error);
+        }
+    };
     /** @param {string} labelName */
-    const removeLabel = (labelName = noFound) =>
-        github.rest.issues
-            .removeLabel({
+    const removeLabel = async (labelName = noFound) => {
+        try {
+            return await github.rest.issues.removeLabel({
                 ...issueFacts,
                 name: labelName,
-            })
-            .catch((error) => {
-                core.warning(error);
             });
+        } catch (error) {
+            core.warning(error);
+        }
+    };
     /** @param {'open' | 'closed'} state */
-    const updatePrState = (state) =>
-        github.rest.pulls
-            .update({
+    const updatePrState = async (state) => {
+        try {
+            return await github.rest.pulls.update({
                 ...prFacts,
                 state,
-            })
-            .catch((error) => {
-                core.warning(error);
             });
+        } catch (error) {
+            core.warning(error);
+        }
+    };
     /** @param {string} body */
-    const createComment = (body) =>
-        github.rest.issues
-            .createComment({
+    const createComment = async (body) => {
+        try {
+            return await github.rest.issues.createComment({
                 ...issueFacts,
                 body,
-            })
-            .catch((error) => {
-                core.warning(error);
             });
+        } catch (error) {
+            core.warning(error);
+        }
+    };
     const createFailedComment = () => {
         const logUrl = `${process.env.GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
@@ -93,10 +103,14 @@ export default async function identify({ github, context, core }, body, number, 
     };
 
     if (isPR) {
+        if (issue.labels.some((e) => e.name === 'spam')) {
+            core.info('PR labeled as spam, skipping');
+            return;
+        }
         if (issue.state === 'closed') {
             await updatePrState('open');
         }
-        if (issue.labels.some((e) => e.name === criticalFailure) || issue.labels.some((e) => e.name === routeTestFailed)) {
+        if (issue.labels.some((e) => e.name === criticalFailure || e.name === routeTestFailed)) {
             await removeLabel(criticalFailure);
             await removeLabel(routeTestFailed);
         }
@@ -107,26 +121,54 @@ export default async function identify({ github, context, core }, body, number, 
         await removeLabel();
         await addLabels(['auto: ready to merge']);
         return;
-    } else {
-        core.debug('PR created by ' + sender);
     }
+    core.debug('PR created by ' + sender);
+
+    let hasWriteAccess;
+    try {
+        const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            username: sender,
+        });
+        hasWriteAccess = ['admin', 'maintain', 'write'].includes(data.permission);
+    } catch (error) {
+        core.warning(error);
+        hasWriteAccess = false;
+    }
+    core.debug(`hasWriteAccess: ${hasWriteAccess}`);
 
     /** @type {string[] | undefined} */
     let routes;
 
     if (body) {
-        const ast = unified().use(remarkParse).parse(body);
+        const ast = unified().use(remarkParse).use(remarkGfm).parse(body);
 
         let searchStart = 0;
         let searchEnd = ast.children.length;
 
         if (isPR) {
-            const headingIndex = ast.children.findIndex((node) => node.type === 'heading' && node.children?.some((child) => child.type === 'text' && child.value.trim() === requiredHeading));
-            core.debug(`headingIndex: ${headingIndex}`);
+            /** @param {string} text */
+            const findHeading = (text) => ast.children.findIndex((node) => node.type === 'heading' && node.depth === 2 && node.children?.some((child) => child.type === 'text' && child.value.trim() === text));
 
-            if (headingIndex === -1) {
+            /** @param {string} text */
+            const missingChecklist = (text) => {
+                const headingIndex = findHeading(text);
+                const nextHeading = ast.children.findIndex((node, i) => i > headingIndex && node.type === 'heading');
+                const checkboxCount = ast.children
+                    .slice(headingIndex + 1, nextHeading === -1 ? undefined : nextHeading)
+                    .filter((node) => node.type === 'list')
+                    .flatMap((node) => node.children ?? [])
+                    .filter((item) => item.checked === true || item.checked === false).length;
+                return checkboxCount < 5;
+            };
+
+            const missingHeadings = requiredHeadings.filter((text) => findHeading(text) === -1);
+            if (missingHeadings.length > 0 || missingChecklist(checklistHeading)) {
                 searchStart = -1; // skip search
             } else {
+                const headingIndex = findHeading(routeHeading);
+                core.debug(`headingIndex: ${headingIndex}`);
                 searchStart = headingIndex + 1;
                 const nextHeading = ast.children.findIndex((node, i) => i > headingIndex && node.type === 'heading');
                 if (nextHeading !== -1) {
@@ -175,7 +217,9 @@ export default async function identify({ github, context, core }, body, number, 
     await createFailedComment();
     if (isPR) {
         await addLabels([noFound]);
-        await updatePrState('closed');
+        if (!hasWriteAccess) {
+            await updatePrState('closed');
+        }
     }
 
     throw new Error('Please follow the PR rules: failed to detect route');

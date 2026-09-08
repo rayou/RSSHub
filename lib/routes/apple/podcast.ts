@@ -37,7 +37,7 @@ async function handler(ctx) {
     const { id, region } = ctx.req.param();
     const numericId = id.match(/id(\d+)/)?.[1];
     const baseUrl = 'https://podcasts.apple.com';
-    const link = `${baseUrl}/${region || `cn`}/podcast/${id}`;
+    const link = `${baseUrl}/${region || 'cn'}/podcast/${id}`;
 
     const response = await ofetch(link);
 
@@ -50,13 +50,13 @@ async function handler(ctx) {
     const bearerToken = await cache.tryGet(
         'apple:podcast:bearer',
         async () => {
-            const moduleAddress = new URL($('head script[type="module"]').attr('src'), baseUrl).href;
-            const modulesResponse = await ofetch(moduleAddress, {
+            const moduleAddress = new URL($('head script[type="module"]').attr('src')!, baseUrl).href;
+            const modulesResponse = await ofetch<string>(moduleAddress, {
                 parseResponse: (txt) => txt,
             });
-            const bearerToken = modulesResponse.match(/="(eyJhbGci.*?)",/)[1];
+            const bearerToken = modulesResponse.match(/="(eyJhbGci.*?)",/)![1];
 
-            return bearerToken as string;
+            return bearerToken;
         },
         config.cache.contentExpire,
         false

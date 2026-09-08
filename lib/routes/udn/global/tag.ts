@@ -25,7 +25,7 @@ export const route: Route = {
         },
     ],
     name: '轉角國際 - 標籤',
-    maintainers: ['emdoe', 'nczitzk'],
+    maintainers: ['emdoe', 'nczitzk', 'pseudoyu'],
     handler,
     description: `| 過去 24 小時 | 鏡頭背後 | 深度專欄 | 重磅廣播 |
 | ------------ | -------- | -------- | -------- |`,
@@ -46,7 +46,7 @@ async function handler(ctx) {
     let items = response.data.lists.map((item) => ({
         title: item.title,
         author: item.author?.title,
-        pubDate: timezone(parseDate(item.time?.dateTime), +8),
+        pubDate: timezone(parseDate(item.time?.dateTime), 8),
         link: item.url,
         category: item.hash?.map((h) => h.title),
     }));
